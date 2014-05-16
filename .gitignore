@@ -1,0 +1,9 @@
+# dlls
+[Oo]bj/
+[Bb]in
+[Dd]ebug*/
+[Rr]elease*/
+
+#MonoDevelop
+*.pidb
+*.userprefs
