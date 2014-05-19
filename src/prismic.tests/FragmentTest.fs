@@ -22,7 +22,7 @@ module FragmentTest =
             match maybeGroup with
                             | Some(Group(docs)) -> 
                                 match docs |> Seq.tryPick Some with
-                                    | Some(doc) -> match doc |> getLink "linktodoc" with
+                                    | Some(doc) -> match doc.fragments |> getLink "linktodoc" with
                                                             | Some(Link(DocumentLink(l))) -> Assert.IsNotNull(l.id)
                                                             | _ -> Assert.Fail("No link found")
                                     | _ -> Assert.Fail("No document found")
@@ -55,7 +55,7 @@ module FragmentTest =
             let document = await(form.Submit()).results |> List.head 
             let maybeLink = document.fragments |> getLink "test-link.related"
             match maybeLink with
-                            | Some(Link(MediaLink(_, _, _, filename))) -> Assert.AreEqual("baastad.pdf", filename)
+                            | Some(Link(MediaLink(l))) -> Assert.AreEqual("baastad.pdf", l.filename)
                             | _ -> Assert.Fail("Media Link not found")
 
         [<Test>]
@@ -106,7 +106,7 @@ module FragmentTest =
             let maybeImg = document.fragments |> getImageView "article.illustration" "icon"
 
             match maybeImg with
-                            | Some(_, _, _, _) -> 
+                            | Some(_) -> 
                                 let expectpattern = """<img alt="some alt text" src="{0}" width="100" height="100" />"""
                                 let url = "https://prismic-io.s3.amazonaws.com/test-public/9f5f4e8a5d95c7259108e9cfdde953b5e60dcbb6.jpg"
                                 let expect = String.Format(expectpattern, url)

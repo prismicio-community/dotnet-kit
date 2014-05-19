@@ -8,16 +8,18 @@ module Fragments =
     
     /// fragments types
 
-    type ImageView = (string * int * int * string option) // (url, width, height, alt)
+    type ImageView = { url: string; width: int; height: int; alt: string option}
     and DocumentLink = { id: string; typ: string; tags: string seq; slug: string; isBroken: bool }
-    and GroupDoc = Map<string, Fragment>
-    and Link = WebLink of (string * string option) // (url, contentType)
-                | MediaLink of (string * string * Int64 * string) // (url, kind, size, filename)
+    and WebLink = { url:string; contentType:string option}
+    and MediaLink = { url:string; kind:string; size:Int64; filename:string }
+    and GroupDoc = { fragments: Map<string, Fragment> }
+    and Link = WebLink of WebLink
+                | MediaLink of MediaLink
                 | DocumentLink of DocumentLink
     and Span = Em of (int * int)
                 | Strong of (int * int)
                 | Hyperlink of (int * int * Link)
-    and Embed = (string * string * string * int option * int option * string option * JsonValue) // typ, provider, url, width, height, html, oembedJson
+    and Embed = {typ:string; provider:string; url:string; width:int option; height:int option; html:string option; oembedJson:JsonValue}
     and Text = Heading of (string * Span seq * int) // (text, spans, level)
                 | Paragraph of (string * Span seq) // (text, spans)
                 | Preformatted of (string * Span seq) // (text, spans)

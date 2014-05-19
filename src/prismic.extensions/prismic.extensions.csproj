@@ -3,11 +3,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E31456BF-4E78-4158-B992-A961D62E8CE4}</ProjectGuid>
+    <ProjectGuid>{AADCC7DE-260E-41A7-BC08-12C3DE5D682C}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>prismic.csharp.tests</RootNamespace>
-    <AssemblyName>prismic.csharp.tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>prismic.extensions</RootNamespace>
+    <AssemblyName>prismic.extensions</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,28 +28,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="nunit.framework" />
-    <Reference Include="FSharp.Data">
-      <HintPath>..\packages\FSharp.Data.2.0.7\lib\net40\FSharp.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="FSharp.Core">
       <HintPath>..\packages\FSharp.Core.3.0.0.2\lib\net40\FSharp.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApiTest.cs" />
-    <Compile Include="FragmentsTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Extensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\prismic\prismic.fsproj">
       <Project>{DC1DBC43-0945-4BBF-879A-F6B5A0883194}</Project>
       <Name>prismic</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\prismic.extensions\prismic.extensions.csproj">
-      <Project>{AADCC7DE-260E-41A7-BC08-12C3DE5D682C}</Project>
-      <Name>prismic.extensions</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

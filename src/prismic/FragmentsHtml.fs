@@ -9,22 +9,22 @@ open ShortcutsAndUtils
 module FragmentsHtml =
 
     type GroupTags = GroupTags of (string option * Block list)
-    let imageViewAsHtml ((url, width, height, alt):ImageView) = 
-                    String.Format("""<img alt="{0}" src="{1}" width="{2}" height="{3}" />""", (defaultArg alt ""), url, width, height) 
+    let imageViewAsHtml (view:ImageView) = 
+                    String.Format("""<img alt="{0}" src="{1}" width="{2}" height="{3}" />""", (defaultArg (view.alt) ""), view.url, view.width, view.height) 
 
     let rec asHtml (linkResolver:DocumentLink -> string) = function
                     | Link l -> match l with
-                                | WebLink (url, _) -> String.Format("""<a href="{0}">{0}</a>""", url)
-                                | MediaLink (url, _, _, filename) -> String.Format("""<a href="{0}">{1}</a>""", url, filename)
+                                | WebLink (l) -> String.Format("""<a href="{0}">{0}</a>""", l.url)
+                                | MediaLink (l) -> String.Format("""<a href="{0}">{1}</a>""", l.url, l.filename)
                                 | DocumentLink (l) -> String.Format("""<a href="{0}">{1}</a>""", linkResolver(l), l.slug)
                     | Text t -> String.Format("""<span class="text">{0}</span>""", t)
                     | Date d -> String.Format("""<time>{0}</time>""", (d.ToString("yyyy-MM-dd"))) // Check date time format
                     | Number n -> String.Format("""<span class="number">{0}</span>""", n)
                     | Color c -> String.Format("""<span class="color">{0}</span>""", c)
-                    | Embed (typ, provider, url, width, height, html, oembedJson) -> 
-                                html 
+                    | Embed (e) -> 
+                                e.html 
                                     |> Option.fold (fun _ h -> String.Format("""<div data-oembed="{0}" data-oembed-type="{1}" data-oembed-provider="{2}">{3}</div>""", 
-                                                                                    url, typ.ToLowerInvariant(), provider.ToLowerInvariant(), h)
+                                                                                    e.url, e.typ.ToLowerInvariant(), e.provider.ToLowerInvariant(), h)
                                                    ) String.Empty
                     | Image (i, m) -> imageViewAsHtml i
                     | Group g ->    let getHtml field fragmentMap = 
@@ -37,13 +37,13 @@ module FragmentsHtml =
                                         groupDoc 
                                             |> Map.toSeq 
                                             |> Seq.map (fun (k, _) -> String.Format("""<section data-field="{0}">{1}</section>""", k, resolve k))
-                                    g |> Seq.collect (fun gd -> groupDocsHtml gd) |> String.concat "\n" 
+                                    g |> Seq.collect (fun gd -> groupDocsHtml gd.fragments) |> String.concat "\n" 
                     | StructuredText t 
                         -> 
-                            let embedAsHtml ((typ, provider, url, _, _, html, _):Embed) = 
-                                html |> Option.fold (fun s h -> 
+                            let embedAsHtml (e:Embed) = 
+                                e.html |> Option.fold (fun s h -> 
                                             String.Format("""<div data-oembed="{0}" data-oembed-type="{1}" data-oembed-provider="{2}">{3}</div>""",
-                                                url, typ.ToLowerInvariant(), provider.ToLowerInvariant(), html)) String.Empty
+                                                e.url, e.typ.ToLowerInvariant(), e.provider.ToLowerInvariant(), e.html)) String.Empty
                             let textspanAsHtml (text:string) (spans:Span seq) = 
                                 let escape (str:string) = str.Replace("<", "&lt;").Replace("\n", "<br>")
                                 let writeTag opening = function
@@ -51,10 +51,10 @@ module FragmentsHtml =
                                                         | Span.Strong(_, _) -> if opening then "<strong>" else "</strong>"
                                                         | Span.Hyperlink(_, _, Link.DocumentLink(l)) 
                                                             -> if opening then String.Format("""<a href="{0}">""", linkResolver l) else "</a>"
-                                                        | Span.Hyperlink(_, _, Link.MediaLink(url, _, _, _)) 
-                                                            -> if opening then String.Format("""<a href="{0}">""", url) else "</a>"
-                                                        | Span.Hyperlink(_, _, Link.WebLink(url, _)) 
-                                                            -> if opening then String.Format("""<a href="{0}">""", url) else "</a>"
+                                                        | Span.Hyperlink(_, _, Link.MediaLink(l)) 
+                                                            -> if opening then String.Format("""<a href="{0}">""", l.url) else "</a>"
+                                                        | Span.Hyperlink(_, _, Link.WebLink(l)) 
+                                                            -> if opening then String.Format("""<a href="{0}">""", l.url) else "</a>"
                                                         //| _ -> if opening then "<span>" else "</span>"
                                 let writeHtml endingsToApply startingsToApply = 
                                     let e = endingsToApply 

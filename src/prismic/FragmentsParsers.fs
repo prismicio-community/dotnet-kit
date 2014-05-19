@@ -12,10 +12,10 @@ module FragmentsParsers =
          | _ -> None
 
 
-    let parseImageView (f:JsonValue) = (  f?url.AsString(), 
-                                            f?dimensions?width.AsInteger(), 
-                                            f?dimensions?height.AsInteger(), 
-                                            asStringOption(f>?"alt"))
+    let parseImageView (f:JsonValue) = {    url=  f?url.AsString(); 
+                                            width= f?dimensions?width.AsInteger(); 
+                                            height= f?dimensions?height.AsInteger(); 
+                                            alt= asStringOption(f>?"alt") }
     let parseImage (f:JsonValue) = 
                         let main = parseImageView f?main
                         let views = asMapFromProperties parseImageView f?views
@@ -39,20 +39,21 @@ module FragmentsParsers =
             f.AsString()) // err : Invalid text value $v
     let parseEmbed (f:JsonValue) = 
         let oembed = f?oembed in
-        (
-            oembed.GetProperty("type").AsString(), 
-            oembed?provider_name.AsString(), 
-            oembed?embed_url.AsString(), 
-            asIntegerOption(oembed>?"width"), 
-            asIntegerOption(oembed>?"height"), 
-            asStringOption(oembed>?"html"),
-            oembed // What is it for ?? ////////////////////
-        )
+        {
+            typ = oembed.GetProperty("type").AsString();
+            provider = oembed?provider_name.AsString();
+            url = oembed?embed_url.AsString();
+            width = asIntegerOption(oembed>?"width"); 
+            height = asIntegerOption(oembed>?"height"); 
+            html = asStringOption(oembed>?"html");
+            oembedJson = oembed 
+        }
     let parseFragmentEmbed (f:JsonValue) = Fragment.Embed(parseEmbed(f))
     let parseWebLink (f:JsonValue) = 
-        WebLink(
-            f?url.AsString(), 
-            Option.None)
+        WebLink({
+                url = f?url.AsString();
+                contentType = Option.None
+        })
     let parseFragmentWebLink (f:JsonValue) = Fragment.Link(parseWebLink(f))
     let parseDocumentLink (f:JsonValue) = 
         let doc = f?document in
@@ -66,11 +67,11 @@ module FragmentsParsers =
     let parseFragmentDocumentLink (f:JsonValue) = Fragment.Link(parseDocumentLink(f))
     let parseMediaLink (f:JsonValue) = 
         let file = f?file in
-        MediaLink(
-            file?url.AsString(), 
-            file?kind.AsString(), 
-            file?size.AsInteger64(), 
-            file?name.AsString())
+        MediaLink({
+            url = file?url.AsString(); 
+            kind = file?kind.AsString();
+            size = file?size.AsInteger64(); 
+            filename = file?name.AsString()})
     let parseFragmentMediaLink (f:JsonValue) = Fragment.Link(parseMediaLink(f))
     let parseStructuredText (f:JsonValue) =  // recheck StructuredText read logic ///////
         let parseSpan (f:JsonValue) = 
@@ -134,7 +135,7 @@ module FragmentsParsers =
 
     let rec parseFragment (j:JsonValue) = 
         let parseGroup (f:JsonValue) = 
-            let g = f.AsArray() |> Array.map (fun x -> asMapFromOptionProperties parseFragment x) |> Seq.ofArray
+            let g = f.AsArray() |> Array.map (fun x -> {fragments = asMapFromOptionProperties parseFragment x}) |> Seq.ofArray
             Group(g)
 
         let t = j.GetProperty("type").AsString() in // NOT OK : use tryget - type is not mandatory
@@ -173,7 +174,7 @@ module FragmentsParsers =
                             | _ -> None
 
     
-    let imageRatio ((_, width, height, _):ImageView) = width / height
+    let imageRatio (view:ImageView) = view.width / view.height
 
     let asRGB hex = match tryParseHexColor hex with
                         Some(r :: g :: b :: []) -> (System.Int16.Parse(r), System.Int16.Parse(g), System.Int16.Parse(b))

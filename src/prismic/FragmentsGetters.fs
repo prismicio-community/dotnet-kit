@@ -108,7 +108,8 @@ module FragmentsGetters =
                                             getAllImages field fragmentMap 
                                                 |> Seq.map (function Image(m, v) -> Some(m) 
                                                                                     | _ -> None)
-                                        | _ -> Seq.empty) 
+                                        | _ -> Seq.empty)
+            |> Seq.choose id
 
     let getStructuredText field fragmentMap = 
         get field fragmentMap 
@@ -143,20 +144,18 @@ module FragmentsGetters =
                                         | Color(_) -> Some(f) 
                                         | _ -> None)
     
-    let getNumberApply a field fragmentMap = 
+    let getNumber field fragmentMap = 
         get field fragmentMap 
             |> Option.bind (fun f -> match f with   
-                                        | Number(_) -> Some(a(f)) 
+                                        | Number(_) -> Some(f)
                                         | _ -> None)
 
-    let getNumber = getNumberApply id
 
-    let getDateApply a field fragmentMap = 
+    let getDate field fragmentMap = 
         get field fragmentMap 
             |> Option.bind (fun f -> match f with   
-                                        | Date(_) -> Some(a(f)) 
+                                        | Date(_) -> Some(f) 
                                         | _ -> None) 
-    let getDate = getDateApply id
 
     let getBoolean field fragmentMap = 
         get field fragmentMap 

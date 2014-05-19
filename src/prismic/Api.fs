@@ -218,15 +218,10 @@ module Api =
     }
 
     let get token url = async {
-        let! apidata = fetchPrismicJson url token
-        return apidata
+        let! api = fetchPrismicJson url token
+        return api
     }
 
     let asHtml (linkResolver:DocumentLinkResolver) = FragmentsHtml.asHtml linkResolver.Apply
-
-
-   
-
-
 
 
