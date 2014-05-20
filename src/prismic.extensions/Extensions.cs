@@ -18,13 +18,15 @@ namespace prismic.extensions
 			return FSharpAsync.StartAsTask (form.Submit(), FSharpOption<TaskCreationOptions>.None, FSharpOption<CancellationToken>.None);
 		}
 
-		public static Task<prismic.Api.Api> Get(string token, string url)
+		public static Task<prismic.Api.Api> Get(string token, string url, prismic.Infra.ICache<prismic.Api.Response> cache, Action<string, string> logger)
 		{
-			return FSharpAsync.StartAsTask (prismic.Api.get(FSharpOption<string>.Some(token), url), FSharpOption<TaskCreationOptions>.None , FSharpOption<CancellationToken>.None);
+			return FSharpAsync.StartAsTask (prismic.Api.get(cache, logger.ToFSharpFunc(),
+				FSharpOption<string>.Some(token), url), FSharpOption<TaskCreationOptions>.None , FSharpOption<CancellationToken>.None);
 		}
-		public static Task<prismic.Api.Api> Get(string url)
+		public static Task<prismic.Api.Api> Get(string url, prismic.Infra.ICache<prismic.Api.Response>  cache, Action<string, string> logger)
 		{
-			return FSharpAsync.StartAsTask (prismic.Api.get(FSharpOption<string>.None, url), FSharpOption<TaskCreationOptions>.None , FSharpOption<CancellationToken>.None);
+			return FSharpAsync.StartAsTask (prismic.Api.get(cache, logger.ToFSharpFunc(),
+				FSharpOption<string>.None, url), FSharpOption<TaskCreationOptions>.None , FSharpOption<CancellationToken>.None);
 		}
 		public static SearchFormWithTask SubmitableAsTask(this prismic.Api.SearchForm form)
 		{

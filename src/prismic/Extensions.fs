@@ -4,7 +4,7 @@ open FSharp.Data
 open prismic
 open prismic.FragmentsGetters
 
-
+    /// adapters for C#
 
     [<Extension>]
     type CoreEx() =
@@ -30,6 +30,9 @@ open prismic.FragmentsGetters
 
        [<Extension>] 
        static member ToFSharpFunc<'a,'b,'c,'d> (func:System.Func<'a,'b,'c,'d>) = fun x y z -> func.Invoke(x,y,z)
+
+       [<Extension>] 
+       static member ToFSharpFunc<'a,'b> (func:System.Action<'a,'b>) = fun x y -> func.Invoke(x,y) |> ignore
 
        static member CreateFunc<'a,'b> (func:System.Func<'a,'b>) = CoreEx.ToFSharpFunc func
 

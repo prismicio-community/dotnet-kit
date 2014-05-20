@@ -9,13 +9,15 @@ open FragmentsHtml
 module FragmentTest =
 
     let await a = a |> Async.RunSynchronously
+    let apiGetNoCache = Api.get (Infra.NoCache() :> Infra.ICache<Api.Response>) (Infra.Logger.NoLogger)
+
     [<TestFixture>]
     type ``Query Document and Parse Fragments``() = 
 
         [<Test>]
         member x.``Should Access Group Field``() = 
             let url = "https://micro.prismic.io/api"
-            let api = await (Api.get (Option.None) url)
+            let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.type, "docchapter")]]""")
             let document = await(form.Submit()).results |> List.head 
             let maybeGroup = document.fragments |> getGroup "docchapter.docs"
@@ -32,7 +34,7 @@ module FragmentTest =
         [<Test>]
         member x.``Should Serialize Group To HTML``() = 
             let url = "https://micro.prismic.io/api"
-            let api = await (Api.get (Option.None) url)
+            let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.type, "docchapter")]]""")
             let documentf = await(form.Submit()).results 
             let document = List.nth documentf  1
@@ -50,7 +52,7 @@ module FragmentTest =
         [<Test>]
         member x.``Should Access Media Link``() = 
             let url = "https://test-public.prismic.io/api"
-            let api = await (Api.get (Option.None) url)
+            let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "Uyr9_wEAAKYARDMV")]]""")
             let document = await(form.Submit()).results |> List.head 
             let maybeLink = document.fragments |> getLink "test-link.related"
@@ -61,7 +63,7 @@ module FragmentTest =
         [<Test>]
         member x.``Should Access First Link In Multiple Document Link``() = 
             let url = "https://lesbonneschoses.prismic.io/api"
-            let api = await (Api.get (Option.None) url)
+            let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "UkL0gMuvzYUANCpi")]]""")
             let document = await(form.Submit()).results |> List.head 
             let maybeLink = document.fragments |> getLink "job-offer.location"
@@ -73,7 +75,7 @@ module FragmentTest =
         [<Test>]
         member x.``Should Find All Links In Multiple Document Link``() = 
             let url = "https://lesbonneschoses.prismic.io/api"
-            let api = await (Api.get (Option.None) url)
+            let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "UkL0gMuvzYUANCpi")]]""")
             let document = await(form.Submit()).results |> List.head 
             let links = document.fragments |> getAll "job-offer.location"
@@ -91,7 +93,7 @@ module FragmentTest =
         [<Test>]
         member x.``Should Access Structured Text``() = 
             let url = "https://lesbonneschoses.prismic.io/api"
-            let api = await (Api.get (Option.None) url)
+            let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "UkL0gMuvzYUANCpu")]]""")
             let document = await(form.Submit()).results |> List.head 
             let maybeStructTxt = document.fragments |> getStructuredText "article.content"
@@ -100,7 +102,7 @@ module FragmentTest =
         [<Test>]
         member x.``Should Access Image``() = 
             let url = "https://test-public.prismic.io/api"
-            let api = await (Api.get (Option.None) url)
+            let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "Uyr9sgEAAGVHNoFZ")]]""")
             let document = await(form.Submit()).results |> List.head 
             let maybeImg = document.fragments |> getImageView "article.illustration" "icon"

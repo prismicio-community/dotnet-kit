@@ -7,6 +7,7 @@ open Api
 module QueryTest =
 
     let await a = a |> Async.RunSynchronously
+    let apiGetNoCache = Api.get (Infra.NoCache() :> Infra.ICache<Api.Response>) (Infra.Logger.NoLogger)
     let expectException statement matchesException = 
         try
             statement() |> ignore
@@ -21,7 +22,7 @@ module QueryTest =
         [<Test>]
         member x.``Without a ref Should Throw``() = 
             let url = "https://lesbonneschoses.prismic.io/api"
-            let api = await (Api.get (Option.None) url)
+            let api = await (apiGetNoCache (Option.None) url)
             expectException 
                 (fun () -> await (api.Forms.["everything"].Query("""[[:id = at(my.job-offer.pouet, "ABCDEF12345")]]""").Submit()))
                 (function
@@ -31,7 +32,7 @@ module QueryTest =
         [<Test>]
         member x.``With an invalid key Should Throw``() = 
             let url = "https://lesbonneschoses.prismic.io/api"
-            let api = await (Api.get (Option.None) url)
+            let api = await (apiGetNoCache (Option.None) url)
             expectException 
                 (fun () -> await (api.Forms.["everything"].Ref(api.Master).Query("""[[:id = at(my.job-offer.pouet, "ABCDEF12345")]]""").Submit()))
                 (function

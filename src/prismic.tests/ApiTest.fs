@@ -13,6 +13,8 @@ module ApiTest =
         with | e -> match matchesException(e) with
                     | true -> Assert.That(true)
                     | _ -> Assert.Fail(sprintf "unexpected type of exception happened: %s %s" (e.GetType().Name) e.Message)
+    
+    let apiGetNoCache = Api.get (Infra.NoCache() :> Infra.ICache<Api.Response>) (Infra.Logger.NoLogger)
 
     [<TestFixture>]
     type ``Get Private Api``() = 
@@ -21,7 +23,7 @@ module ApiTest =
         member x.``Without Authorization Token Should Throw``() =
             let url = "https://private-test.prismic.io/api"
             expectException 
-                (fun () -> await (Api.get (Option.None) url))
+                (fun () -> await (apiGetNoCache (Option.None) url))
                 (function
                     | Api.AuthorizationNeeded(_, url) -> url = "https://private-test.prismic.io/auth"
                     | e -> false)
@@ -30,7 +32,7 @@ module ApiTest =
         member x.``With Invalid Token Should Throw``() =
             let url = "https://private-test.prismic.io/api"
             expectException 
-                (fun () -> await (Api.get (Option.Some("dummy-token")) url))
+                (fun () -> await (apiGetNoCache (Option.Some("dummy-token")) url))
                 (function
                     | Api.InvalidToken(_, url) -> url = "https://private-test.prismic.io/auth"
                     | e -> false)

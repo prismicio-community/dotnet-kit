@@ -20,6 +20,9 @@ open prismic
         static member ToFSharpFunc : func:System.Func<'a,'b,'c> -> ('a -> 'b -> 'c)
         [<Extension>]
         static member ToFSharpFunc : func:System.Func<'a,'b,'c,'d> -> ('a -> 'b -> 'c -> 'd)
+        [<Extension>]
+        static member ToFSharpFunc : func:System.Action<'a,'b> -> ('a -> 'b -> unit)
+
         static member CreateFunc : func:System.Func<'a,'b> -> ('a -> 'b)
         static member CreateFunc : func:System.Func<'a,'b,'c> -> ('a -> 'b -> 'c)
         static member CreateFunc : func:System.Func<'a,'b,'c,'d> -> ('a -> 'b -> 'c -> 'd)

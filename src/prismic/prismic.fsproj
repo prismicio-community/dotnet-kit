@@ -42,15 +42,14 @@
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Runtime.Caching" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Cache.fsi" />
+    <Compile Include="Infra.fsi" />
     <Compile Include="Fragments.fsi" />
     <Compile Include="Api.fsi" />
     <Compile Include="ShortcutsAndUtils.fs" />
-    <Compile Include="Cache.fs" />
+    <Compile Include="Infra.fs" />
     <Compile Include="Fragments.fs" />
     <Compile Include="FragmentsParsers.fs" />
     <Compile Include="FragmentsGetters.fs" />

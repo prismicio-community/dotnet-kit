@@ -9,11 +9,12 @@ module PaginationTest =
     type ``Query The Api With Pagination``() = 
 
         let await a = a |> Async.RunSynchronously
+        let apiGetNoCache = Api.get (Infra.NoCache() :> Infra.ICache<Api.Response>) (Infra.Logger.NoLogger)
 
         [<Test>]
         member x.``Can Return first page``() =
             let url = "https://lesbonneschoses.prismic.io/api"
-            let api = await (Api.get (Option.None) url)
+            let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Page(1).PageSize(20).Orderings("[my.docchapter.priority]")
             let r = await(form.Submit())
             Assert.AreEqual(1, r.page)
@@ -28,7 +29,7 @@ module PaginationTest =
         [<Test>]
         member x.``Can Return second page``() =
             let url = "https://lesbonneschoses.prismic.io/api"
-            let api = await (Api.get (Option.None) url)
+            let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Page(2).PageSize(20).Orderings("[my.docchapter.priority]")
             let r = await(form.Submit())
             Assert.AreEqual(2, r.page)
@@ -42,7 +43,7 @@ module PaginationTest =
         [<Test>]
         member x.``Can set page size``() =
             let url = "https://lesbonneschoses.prismic.io/api"
-            let api = await (Api.get (Option.None) url)
+            let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Page(1).PageSize(7).Orderings("[my.docchapter.priority]")
             let r = await(form.Submit())
             Assert.AreEqual(1, r.page)

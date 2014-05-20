@@ -2,6 +2,7 @@
 open System
 open System.Collections.Specialized
 open System.IO
+open System.Linq
 open System.Net
 open System.Reflection
 open System.Web
@@ -13,9 +14,9 @@ module ApiCore =
         remoteStackTraceString.SetValue(e, e.StackTrace + Environment.NewLine);
         raise e
 
-    type httpResponse = { statusCode:HttpStatusCode ; statusText:string ; body:string }
+    type httpResponse = { statusCode:HttpStatusCode ; statusText:string ; body:string ; headers:Map<string, string[]> }
 
-    let fetch(request: WebRequest) = async {
+    let fetch (request: WebRequest) (logger:string->string->unit) = async {
         let read (response: WebResponse) = async {
             use stream = response.GetResponseStream()
             let mem = new System.IO.MemoryStream()
@@ -33,19 +34,26 @@ module ApiCore =
             return responseRead
         }
 
+        let mapHeaders (headers:WebHeaderCollection) = 
+            seq { for i in 0 .. headers.Count-1 do 
+                    let key = headers.GetKey(i)
+                    yield (key, headers.GetValues(i)) } |> Map.ofSeq
+
         try
             use! response = request.AsyncGetResponse()
             let! r = read response
 
             let httpResponse = (response :?> HttpWebResponse) in
-            return { statusCode = httpResponse.StatusCode ; statusText = httpResponse.StatusDescription ;  body = r }
+            let headers = mapHeaders httpResponse.Headers
+            return { statusCode = httpResponse.StatusCode ; statusText = httpResponse.StatusDescription ;  body = r ; headers = headers }
         with 
             | :? WebException as ex -> 
                 let response = ex.Response :?> HttpWebResponse
+                let headers = mapHeaders response.Headers
                 match response with 
                     | null -> return reraisePreserveStackTrace ex
                     | _ ->  let! r = read response
-                            return { statusCode = response.StatusCode ; statusText = response.StatusDescription ; body = r }
+                            return { statusCode = response.StatusCode ; statusText = response.StatusDescription ; body = r ; headers = headers }
             | e -> return reraisePreserveStackTrace e
     }
 

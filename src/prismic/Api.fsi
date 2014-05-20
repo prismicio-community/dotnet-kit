@@ -81,7 +81,7 @@ module Api =
 
 
     type SearchForm =
-        new : form:Form * values:Map<string, string seq> -> SearchForm
+        new : form:Form * values:Map<string, string seq> * cache:prismic.Infra.ICache<Response> * logger:(string->string->unit) -> SearchForm
         member Orderings : o:string -> SearchForm
         member Page : p:int -> SearchForm
         member PageSize : p:int -> SearchForm
@@ -93,7 +93,7 @@ module Api =
         member Submit : unit -> Async<Response>
 
     type Api =
-        new : data:ApiData -> Api
+        new : data:ApiData * cache:prismic.Infra.ICache<Response> * logger:(string->string->unit) -> Api
         member Bookmarks : Map<string, string>
         member Forms : Map<string, SearchForm>
         member Master : Ref
@@ -101,8 +101,8 @@ module Api =
         member OauthTokenEndpoint : string
         member Refs : Map<string, Ref>
 
-
-    val get : token:string option -> url:string -> Async<Api>
+    
+    val get : cache:prismic.Infra.ICache<Response> -> logger: (string -> string -> unit) -> token:string option -> url:string -> Async<Api>
     val asHtml : linkResolver:DocumentLinkResolver -> (Fragments.Fragment -> string)
 
 

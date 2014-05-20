@@ -9,14 +9,13 @@ namespace prismic.csharp.tests
 	[TestFixture ()]
 	public class ApiTest
 	{
-
 		[Test ()]
 		public void GetPrivateApiWithoutAuthorizationTokenShouldThrow()
 		{
 			var url = "https://private-test.prismic.io/api";
 
 			ExpectInnerException<Api.AuthorizationNeeded>( 
-				() => prismic.extensions.Api.Get (url).Wait(),
+				() => prismic.extensions.Api.Get (url, new prismic.Infra.NoCache<prismic.Api.Response>(), (l, m) => {}).Wait(),
 				e => 
 				"https://private-test.prismic.io/auth" == e.Data0);
 		}
@@ -27,7 +26,7 @@ namespace prismic.csharp.tests
 			var url = "https://private-test.prismic.io/api";
 
 			ExpectInnerException<Api.InvalidToken>( 
-				() => prismic.extensions.Api.Get ("dummy-token", url).Wait(),
+				() => prismic.extensions.Api.Get ("dummy-token", url, new prismic.Infra.NoCache<prismic.Api.Response>(), (l, m) => {}).Wait(),
 				e => 
 				"https://private-test.prismic.io/auth" == e.Data0);
 		}

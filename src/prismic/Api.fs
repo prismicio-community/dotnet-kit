@@ -24,7 +24,7 @@ module Api =
     type DocumentLinkResolver(f) = 
         static member For(f:Fragments.DocumentLink -> string) = DocumentLinkResolver(f)
         member this.Apply(documentLink) = f(documentLink)
-
+    
 
     type Ref = { ref:string; label:string; isMasterRef:bool; scheduledAt:System.DateTime option }
                        static member fromJson (json:JsonValue) = {
@@ -105,13 +105,13 @@ module Api =
                                 prevPage = asStringOption(json>?"prev_page")
                             }
 
-    type SearchForm(form, values) = 
+    type SearchForm(form, values, cache:prismic.Infra.ICache<Response>, logger) = 
         let tryFindField fieldName = form.fields |> Map.tryFind fieldName <?-- (lazy raise (System.ArgumentException(sprintf "unknown field %s" fieldName)))
         let (<<=) (field,fieldName) value = 
             let singleOrAppend _ v = if field.multiple then Seq.append v (Seq.singleton value) else Seq.singleton value 
             let fieldValues = values |> Map.tryFind fieldName |> Option.fold singleOrAppend (Seq.singleton value)
             let newvalues = (values.Remove fieldName).Add(fieldName, fieldValues)
-            SearchForm(form, newvalues)
+            SearchForm(form, newvalues, cache, logger)
         member this.Set(fieldName, value:string) = 
             let f = tryFindField fieldName
             (f,fieldName) <<= value
@@ -138,44 +138,59 @@ module Api =
                 match (form.formMethod, form.enctype, form.action) with
                     | ("GET", "application/x-www-form-urlencoded", action) 
                         ->  let url = ApiCore.buildUrl action values
-                            let request = HttpWebRequest.Create(url) :?> HttpWebRequest
-//                            request.AllowAutoRedirect <- true
-//                            request.ReadWriteTimeout <- 120000
-//                            request.Timeout <- 120000
-                            request.Accept <- "application/json"
+                            match cache.Get url.PathAndQuery with
+                                | Some(cached) -> return cached
+                                | None -> 
+                                    let request = HttpWebRequest.Create(url) :?> HttpWebRequest
+//                                  request.AllowAutoRedirect <- true
+//                                  request.ReadWriteTimeout <- 120000
+//                                  request.Timeout <- 120000
+                                    request.Accept <- "application/json"
 
-                            let tryFetch req = async {
-                                try
-                                    return! ApiCore.fetch(req)
-                                with | e -> return raise (FetchingException(sprintf "Got an error while fetching url %s" (url.ToString()), e))
-                            }
+                                    let tryFetch req = async {
+                                        try
+                                            return! ApiCore.fetch req logger
+                                        with | e -> return raise (FetchingException(sprintf "Got an error while fetching url %s" (url.ToString()), e))
+                                    }
 
-                            let tryParse p = 
-                                try 
-                                    let parsed = JsonValue.Parse p
-                                    Response.fromJson parsed
-                                with 
-                                    | :? ParsingException -> reraise()
-                                    | e ->  raise(ParsingException(sprintf "Exception during parsing of %s" p, e))
+                                    let tryParse p = 
+                                        try 
+                                            let parsed = JsonValue.Parse p
+                                            Response.fromJson parsed
+                                        with 
+                                            | :? ParsingException -> reraise()
+                                            | e ->  raise(ParsingException(sprintf "Exception during parsing of %s" p, e))
 
-                            let! fetched = tryFetch(request)
-                            match fetched.statusCode with
-                                | HttpStatusCode.OK -> return tryParse fetched.body
-                                | _ -> return raise (UnexpectedError(sprintf "Got an unexpected HTTP status %s (%s)" (fetched.statusCode.ToString()) fetched.statusText))
+                                    let tryMatchMaxAge = function
+                                        | ParseRegex "max-age\s*=\s*(\d+)" d -> Some(d)
+                                        | _ -> None
+
+                                    let addToCache (parsed:Response) (response:ApiCore.httpResponse) = 
+                                            match response.headers |> Map.tryFind "Cache-Control" |> Option.bind (fun a -> a |> Array.tryPick tryMatchMaxAge) with
+                                                | Some(maxage :: []) -> 
+                                                    let expiration = System.Int64.Parse(maxage) |> float
+                                                    cache.Set url.PathAndQuery parsed (System.DateTimeOffset.Now.AddSeconds(expiration))
+                                                    parsed
+                                                | _ -> parsed
+
+                                    let! fetched = tryFetch(request)
+                                    match fetched.statusCode with
+                                        | HttpStatusCode.OK ->  return addToCache (tryParse fetched.body) fetched
+                                        | _ -> return raise (UnexpectedError(sprintf "Got an unexpected HTTP status %s (%s)" (fetched.statusCode.ToString()) fetched.statusText))
                     | _ -> return raise (System.ArgumentException(sprintf "Form type not supported"))
             }
 
 
-    and Api(data:ApiData) =
+    and Api(data:ApiData, cache:prismic.Infra.ICache<Response>, logger:string->string->unit) =
         member this.Refs = data.refs  
                                     |> Seq.groupBy (fun r -> r.label)
                                     |> Seq.fold (fun (m:Map<string, Ref>) (k, t) -> m.Add(k, Seq.head t)) Map.empty
         member this.Bookmarks = data.bookmarks
-        member this.Forms = data.forms |> Map.map (fun k form -> SearchForm(form, form.defaultData))
+        member this.Forms = data.forms |> Map.map (fun k form -> SearchForm(form, form.defaultData, cache, logger))
         member this.Master = data.refs |> Seq.tryFind (fun r -> r.isMasterRef) <?-- (lazy raise(ParsingException("no master reference found")))
         member this.OauthInitiateEndpoint = fst data.oauthEndpoints
         member this.OauthTokenEndpoint = snd data.oauthEndpoints
-        static member fromJson j =
+        static member fromJson j cache logger =
                     let tryParse p = 
                         try 
                             let parsed = JsonValue.Parse p
@@ -184,7 +199,9 @@ module Api =
                             | :? ParsingException -> reraise()
                             | e -> raise(ParsingException(sprintf "Exception during parsing of %s" j, e))
                     let apidata = tryParse j
-                    Api(apidata)
+                    Api(apidata, cache, logger)
+
+
 
     let selectFromJson j map = 
            let parsed = JsonValue.Parse j
@@ -192,7 +209,7 @@ module Api =
 
 
 
-    let fetchPrismicJson (url:string) (token:string option) = async {
+    let fetchPrismicJson cache logger (url:string) (token:string option) = async {
         let request = HttpWebRequest.Create(url) :?> HttpWebRequest
         request.AllowAutoRedirect <- true
         request.ReadWriteTimeout <- 120000
@@ -201,13 +218,13 @@ module Api =
 
         let tryFetch req = async {
             try
-                return! ApiCore.fetch(req)
+                return! ApiCore.fetch req logger
             with | e -> return raise (FetchingException(sprintf "Got an error while fetching url %s" url, e))
         }
 
         let! fetched = tryFetch(request)
         match fetched.statusCode with
-            | HttpStatusCode.OK -> return Api.fromJson fetched.body
+            | HttpStatusCode.OK -> return Api.fromJson fetched.body cache logger
             | HttpStatusCode.Unauthorized -> 
                 let oauthurl = selectFromJson fetched.body (fun p -> p.TryGetProperty "oauth_initiate")
                 match oauthurl with
@@ -217,8 +234,8 @@ module Api =
             | _ -> return raise (UnexpectedError(sprintf "Got an unexpected HTTP status %s (%s)" (fetched.statusCode.ToString()) fetched.statusText))
     }
 
-    let get token url = async {
-        let! api = fetchPrismicJson url token
+    let get cache logger token url = async {
+        let! api = fetchPrismicJson cache logger url token
         return api
     }
 
