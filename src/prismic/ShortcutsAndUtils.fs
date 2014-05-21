@@ -1,4 +1,5 @@
 ﻿namespace prismic
+open System.Web
 open FSharp.Data
 open FSharp.Data.JsonExtensions
 
@@ -39,8 +40,11 @@ module ShortcutsAndUtils =
                                then Some (List.tail [ for x in m.Groups -> x.Value ])
                                else None
     
-    // 
+    // shortcut for head option
     let seqheadoption s = s |> Seq.tryPick Some
+
+    // html encode
+    let htmlEncode = HttpUtility.HtmlEncode
 
     /// Splits this list into a prefix/suffix pair according to a predicate
     /// returns a pair consisting of the longest prefix of this list whose elements all satisfy pred, and the rest of this list.

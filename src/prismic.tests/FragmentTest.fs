@@ -49,6 +49,26 @@ module FragmentTest =
 <section data-field="linktodoc"><a href="http://localhost/doc/UrDmKgEAALwMyrXA">using-meta-micro</a></section>""", html)
                             | _ -> Assert.Fail("Result is not of type group")
 
+
+        [<Test>]
+        member x.``Should Serialize Another Group To HTML``() = 
+            let url = "https://micro.prismic.io/api"
+            let api = await (apiGetNoCache (Option.None) url)
+            let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.type, "docchapter")]]""")
+            let documentf = await(form.Submit()).results 
+            let document = List.nth documentf  0
+            let maybeGroup = document.fragments |> getGroup "docchapter.docs"
+            match maybeGroup with
+                            | Some(g) -> 
+                                let linkresolver = Api.DocumentLinkResolver.For(fun l -> 
+                                    String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
+                                let html = Api.asHtml linkresolver g
+                                Assert.AreEqual("""<section data-field="linktodoc"><a href="http://localhost/doc/UrDofwEAALAdpbNH">with-jquery</a></section>
+<section data-field="linktodoc"><a href="http://localhost/doc/UrDp8AEAAPUdpbNL">with-bootstrap</a></section>""", html)
+                            | _ -> Assert.Fail("Result is not of type group")
+
+
+
         [<Test>]
         member x.``Should Access Media Link``() = 
             let url = "https://test-public.prismic.io/api"

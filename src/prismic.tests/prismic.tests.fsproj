@@ -48,6 +48,9 @@
     <Compile Include="ApiCoreTest.fs" />
     <Compile Include="QueryTest.fs" />
     <Compile Include="PaginationTest.fs" />
+    <Compile Include="SpanParsingTest.fs" />
+    <Compile Include="LinkParsingTest.fs" />
+    <Compile Include="TextParsingTest.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>

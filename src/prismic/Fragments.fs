@@ -9,6 +9,7 @@ module Fragments =
     /// fragments types
 
     type ImageView = { url: string; width: int; height: int; alt: string option}
+                        member x.ImageRatio = x.width / x.height
     and DocumentLink = { id: string; typ: string; tags: string seq; slug: string; isBroken: bool }
     and WebLink = { url:string; contentType:string option}
     and MediaLink = { url:string; kind:string; size:Int64; filename:string }

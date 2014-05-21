@@ -11,13 +11,13 @@ module FragmentsHtml =
     type GroupTags = GroupTags of (string option * Block list)
     let imageViewAsHtml (view:ImageView) = 
                     String.Format("""<img alt="{0}" src="{1}" width="{2}" height="{3}" />""", (defaultArg (view.alt) ""), view.url, view.width, view.height) 
-
+    
     let rec asHtml (linkResolver:DocumentLink -> string) = function
                     | Link l -> match l with
                                 | WebLink (l) -> String.Format("""<a href="{0}">{0}</a>""", l.url)
                                 | MediaLink (l) -> String.Format("""<a href="{0}">{1}</a>""", l.url, l.filename)
                                 | DocumentLink (l) -> String.Format("""<a href="{0}">{1}</a>""", linkResolver(l), l.slug)
-                    | Text t -> String.Format("""<span class="text">{0}</span>""", t)
+                    | Text t -> String.Format("""<span class="text">{0}</span>""", htmlEncode t)
                     | Date d -> String.Format("""<time>{0}</time>""", (d.ToString("yyyy-MM-dd"))) // Check date time format
                     | Number n -> String.Format("""<span class="number">{0}</span>""", n)
                     | Color c -> String.Format("""<span class="color">{0}</span>""", c)
@@ -45,7 +45,6 @@ module FragmentsHtml =
                                             String.Format("""<div data-oembed="{0}" data-oembed-type="{1}" data-oembed-provider="{2}">{3}</div>""",
                                                 e.url, e.typ.ToLowerInvariant(), e.provider.ToLowerInvariant(), e.html)) String.Empty
                             let textspanAsHtml (text:string) (spans:Span seq) = 
-                                let escape (str:string) = str.Replace("<", "&lt;").Replace("\n", "<br>")
                                 let writeTag opening = function
                                                         | Span.Em(_, _) -> if opening then "<em>" else "</em>"
                                                         | Span.Strong(_, _) -> if opening then "<strong>" else "</strong>"
@@ -78,12 +77,12 @@ module FragmentsHtml =
                                     match in' with
                                         (_, pos) :: tail when not (nextOp |> Option.exists (fun op -> op = pos))
                                             ->  let (done', todo) = in' |> span (fun (_,i) -> not (nextOp |> Option.exists (fun op -> op = i)))
-                                                let consHtml = html =@ escape(System.String(done' |> List.map(fun (c, i) -> c) |> List.toArray))
+                                                let consHtml = html =@ htmlEncode(System.String(done' |> List.map(fun (c, i) -> c) |> List.toArray))
                                                 step todo startings endings consHtml
                                         | (current, pos) :: tail -> 
                                                 let (endingsToApply, othersEnding) = endings |> span (fun s -> spanEnd s = pos)
                                                 let (startingsToApply, othersStarting) = startings |> span (fun s -> spanStart s = pos)
-                                                let applied = String.Format("{0}{1}", writeHtml endingsToApply startingsToApply, escape (current.ToString()))
+                                                let applied = String.Format("{0}{1}", writeHtml endingsToApply startingsToApply, htmlEncode(current.ToString()))
                                                 let moreEndings = startingsToApply |> List.rev
                                                 let newEndings = List.append moreEndings othersEnding
                                                 let consHtml = html =@ applied

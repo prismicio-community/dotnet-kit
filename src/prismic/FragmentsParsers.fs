@@ -138,7 +138,7 @@ module FragmentsParsers =
             let g = f.AsArray() |> Array.map (fun x -> {fragments = asMapFromOptionProperties parseFragment x}) |> Seq.ofArray
             Group(g)
 
-        let t = j.GetProperty("type").AsString() in // NOT OK : use tryget - type is not mandatory
+        let t = j.GetProperty("type").AsString() in 
         let maybeParser = match t with
                             | "Image" -> Some(parseImage) 
                             | "Color" -> Some(parseColor)
@@ -174,7 +174,6 @@ module FragmentsParsers =
                             | _ -> None
 
     
-    let imageRatio (view:ImageView) = view.width / view.height
 
     let asRGB hex = match tryParseHexColor hex with
                         Some(r :: g :: b :: []) -> (System.Int16.Parse(r), System.Int16.Parse(g), System.Int16.Parse(b))

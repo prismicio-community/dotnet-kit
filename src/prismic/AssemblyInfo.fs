@@ -3,9 +3,9 @@ open System.Reflection
 open System.Runtime.CompilerServices
 
 [<assembly: AssemblyTitle("prismic")>]
-[<assembly: AssemblyDescription(".NET prismic Development kit")>]
+[<assembly: AssemblyDescription("prismic.io Development Kit for .NET")>]
 [<assembly: AssemblyConfiguration("")>]
-[<assembly: AssemblyCompany("")>]
+[<assembly: AssemblyCompany("Zengularity")>]
 [<assembly: AssemblyProduct("")>]
 [<assembly: AssemblyCopyright("zengularity")>]
 [<assembly: AssemblyTrademark("")>]

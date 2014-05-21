@@ -235,7 +235,8 @@ module Api =
     }
 
     let get cache logger token url = async {
-        let! api = fetchPrismicJson cache logger url token
+        let urlOptToken = token |> Option.map (fun t -> System.String.Format("{0}?access_token={1}", url, t)) <?- url
+        let! api = fetchPrismicJson cache logger urlOptToken token
         return api
     }
 
