@@ -45,7 +45,7 @@ The differences are listed here (F#):
 * A shortcut is provided to get a DocumentLinkResolver through the For static method:
 ``` ocaml 
 	Api.DocumentLinkResolver.For(fun l -> 
-                        (sprintf """http://localhost/%s/%s""" l.typ l.id))
+                        (sprintf "http://localhost/%s/%s" l.typ l.id))
 ```
 
 The differences are listed here (C#):
