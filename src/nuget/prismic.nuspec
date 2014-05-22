@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">    
+<package>
+  <metadata >    
     <id>@project@</id>
     <version>@build.number@</version>
     <authors>@authors@</authors>
@@ -11,8 +11,12 @@
     <releaseNotes>@releaseNotes@</releaseNotes>
     <copyright>Copyright 2014</copyright>    
     <tags>prismic.io</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Web" targetFramework="net40" />
+      <frameworkAssembly assemblyName="FSharp.Core" targetFramework="net40" />
+    </frameworkAssemblies>
     @dependencies@
     @references@
-    @files@
   </metadata>
+  @files@
 </package>

@@ -68,10 +68,10 @@ module FragmentsParsers =
     let parseMediaLink (f:JsonValue) = 
         let file = f?file in
         MediaLink({
-            url = file?url.AsString(); 
-            kind = file?kind.AsString();
-            size = file?size.AsInteger64(); 
-            filename = file?name.AsString()})
+                    url = file?url.AsString(); 
+                    kind = file?kind.AsString();
+                    size = file?size.AsInteger64(); 
+                    filename = file?name.AsString()})
     let parseFragmentMediaLink (f:JsonValue) = Fragment.Link(parseMediaLink(f))
     let parseStructuredText (f:JsonValue) =  // recheck StructuredText read logic ///////
         let parseSpan (f:JsonValue) = 

@@ -4,6 +4,10 @@
 [Dd]ebug*/
 [Rr]elease*/
 
+src/packages/
+src/nuget/packages/
+src/nuget/packaging/
+
 #MonoDevelop
 *.pidb
 *.userprefs
