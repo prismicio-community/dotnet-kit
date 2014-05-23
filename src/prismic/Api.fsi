@@ -101,8 +101,20 @@ module Api =
         member OauthTokenEndpoint : string
         member Refs : Map<string, Ref>
 
-    
+    /// <summary>Fetches a response from the api for the given url and returns an Api.</summary>
+    /// <param name="cache">Caches the responses according to their max-age.</param>
+    /// <param name="logger">Logs the queries.</param>
+    /// <param name="token">auth token.</param>
+    /// <param name="url">url of the prismic repository.</param>
+    /// <returns>an API.</returns>
+    /// <exception cref="prismic.FetchingException">Thrown when the response fails to be retreived.</exception>
+    /// <exception cref="prismic.ParsingException">Thrown when the response fails to be parsed.</exception>
     val get : cache:prismic.Infra.ICache<Response> -> logger: (string -> string -> unit) -> token:string option -> url:string -> Async<Api>
+
+    /// <summary>Make HTML for a Fragement.</summary>
+    /// <param name="linkResolver">Resolves the links within the document.</param>
+    /// <param name="fragment">Fragment to process.</param>
+    /// <returns>The HTML.</returns>
     val asHtml : linkResolver:DocumentLinkResolver -> (Fragments.Fragment -> string)
 
 

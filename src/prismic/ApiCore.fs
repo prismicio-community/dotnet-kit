@@ -47,14 +47,14 @@ module ApiCore =
             let headers = mapHeaders httpResponse.Headers
             return { statusCode = httpResponse.StatusCode ; statusText = httpResponse.StatusDescription ;  body = r ; headers = headers }
         with 
-            | :? WebException as ex -> 
+            | :? WebException as ex -> // there was an exception but we have a response
                 let response = ex.Response :?> HttpWebResponse
                 let headers = mapHeaders response.Headers
                 match response with 
                     | null -> return reraisePreserveStackTrace ex
                     | _ ->  let! r = read response
                             return { statusCode = response.StatusCode ; statusText = response.StatusDescription ; body = r ; headers = headers }
-            | e -> return reraisePreserveStackTrace e
+            | e -> return reraisePreserveStackTrace e // no response, throw (copy stack since we are in an async computation)
     }
 
     let buildUrl baseurl (values:Map<string, string seq>) = 
@@ -63,12 +63,12 @@ module ApiCore =
         TODO : check UTF8 encoding 
         use Uri.EscapeDataString, HttpUtility.UrlEncode
         *)
-        let httpValueCollection = HttpUtility.ParseQueryString(b.Query)
+        let httpValueCollection = HttpUtility.ParseQueryString(b.Query) // gets a collection with the initial querystring args
         let nameValueCollection = NameValueCollection()
-        values |> Map.iter (fun k s -> s |> Seq.iter (fun v -> nameValueCollection.Add(k, v)))
-        httpValueCollection.Add(nameValueCollection)
+        values |> Map.iter (fun k s -> s |> Seq.iter (fun v -> nameValueCollection.Add(k, v))) // adds the values to a new collection
+        httpValueCollection.Add(nameValueCollection) // merge the new collection with initial collection 
         let queryString = httpValueCollection.ToString()
-        let ub = UriBuilder(b)
+        let ub = UriBuilder(b) // build the uri
         ub.Query <- queryString
         ub.Uri
 

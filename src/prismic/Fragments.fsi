@@ -2,6 +2,7 @@
 open System
 open FSharp.Data
 
+/// Signature file for the Fragment module
 module Fragments =
 
     type ImageView = {url: string; width: int; height: int; alt: string option}
@@ -19,16 +20,16 @@ module Fragments =
       | MediaLink of MediaLink
       | DocumentLink of DocumentLink
     and Span =
-      | Em of (int * int)
-      | Strong of (int * int)
-      | Hyperlink of (int * int * Link)
+      | Em of (int * int) // start, end
+      | Strong of (int * int) // start, end
+      | Hyperlink of (int * int * Link) // start, end, link
     and Embed =
       { typ:string; provider:string; url:string; width:int option; height:int option; html:string option; oembedJson:JsonValue }
     and Text =
-      | Heading of (string * seq<Span> * int)
-      | Paragraph of (string * seq<Span>)
-      | Preformatted of (string * seq<Span>)
-      | ListItem of (string * seq<Span> * bool)
+      | Heading of (string * seq<Span> * int) // text, spans, level
+      | Paragraph of (string * seq<Span>) // text, spans
+      | Preformatted of (string * seq<Span>)  // text, spans
+      | ListItem of (string * seq<Span> * bool)  // text, spans, ordered
     and Block =
       | Text of Text
       | Image of ImageView
@@ -43,6 +44,6 @@ module Fragments =
       | Number of float
       | Color of string
       | Embed of Embed
-      | Image of (ImageView * Map<string,ImageView>)
+      | Image of (ImageView * Map<string,ImageView>) // main view, views
       | Group of seq<GroupDoc>
       | StructuredText of seq<Block>

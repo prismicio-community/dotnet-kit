@@ -234,12 +234,24 @@ module Api =
             | _ -> return raise (UnexpectedError(sprintf "Got an unexpected HTTP status %s (%s)" (fetched.statusCode.ToString()) fetched.statusText))
     }
 
+    /// <summary>Fetches a response from the api for the given url and returns an Api.</summary>
+    /// <param name="cache">Caches the responses according to their max-age.</param>
+    /// <param name="logger">Logs the queries.</param>
+    /// <param name="token">auth token.</param>
+    /// <param name="url">url of the prismic repository.</param>
+    /// <returns>an API.</returns>
+    /// <exception cref="prismic.FetchingException">Thrown when the response fails to be retreived.</exception>
+    /// <exception cref="prismic.ParsingException">Thrown when the response fails to be parsed.</exception>
     let get cache logger token url = async {
         let urlOptToken = token |> Option.map (fun t -> System.String.Format("{0}?access_token={1}", url, t)) <?- url
         let! api = fetchPrismicJson cache logger urlOptToken token
         return api
     }
 
+    /// <summary>Make HTML for a Fragement.</summary>
+    /// <param name="linkResolver">Resolves the links within the document.</param>
+    /// <param name="fragment">Fragment to process.</param>
+    /// <returns>The HTML.</returns>
     let asHtml (linkResolver:DocumentLinkResolver) = FragmentsHtml.asHtml linkResolver.Apply
 
 

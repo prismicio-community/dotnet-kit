@@ -2,7 +2,10 @@
 open FSharp.Data
 
 module Infra =
+
+
     type ICache<'a> =
+        /// key, value, expiration time (now + max-age)
         abstract member Set: string -> 'a-> System.DateTimeOffset -> unit
         abstract member Get: string -> 'a option
        

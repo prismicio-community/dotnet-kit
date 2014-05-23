@@ -12,6 +12,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{1FC70BEF-B74C-4FA1-BC1E-F8D4AC1D44EE}"
 	ProjectSection(SolutionItems) = preProject
 		nuget\prismic.nuspec = nuget\prismic.nuspec
+		nuget\build.fsx = nuget\build.fsx
+		nuget\build.sh = nuget\build.sh
 	EndProjectSection
 EndProject
 Global

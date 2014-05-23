@@ -66,6 +66,7 @@ module FragmentsHtml =
                                 let spanStart = function Span.Em(start, _) | Span.Strong(start, _) | Span.Hyperlink(start, _, _) -> start
                                 let spanEnd = function Span.Em(_, end') | Span.Strong(_, end') | Span.Hyperlink(_, end', _) -> end'
                                 let rec step in' (startings:Span list) (endings:Span list) (html:hlist<string>) = 
+                                    // get the min of 2 options
                                     let (<-->) (a:int option) b = [a ; b] |> List.choose id |> function [] -> None | x -> Some(List.min x)
                                     let nextOp = 
                                         startings 
