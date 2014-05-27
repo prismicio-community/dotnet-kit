@@ -3,7 +3,7 @@ open Microsoft.FSharp.Collections
 open FSharp.Data
 open FSharp.Data.JsonExtensions
 open System.Net
-open ShortcutsAndUtils
+open Shortcuts
 open FragmentsParsers
 
 module Api =
@@ -105,7 +105,7 @@ module Api =
                                 prevPage = asStringOption(json>?"prev_page")
                             }
 
-    type SearchForm(form, values, cache:prismic.Infra.ICache<Response>, logger) = 
+    type SearchForm(form, values, cache:prismic.ApiInfra.ICache<Response>, logger) = 
         let tryFindField fieldName = form.fields |> Map.tryFind fieldName <?-- (lazy raise (System.ArgumentException(sprintf "unknown field %s" fieldName)))
         let (<<=) (field,fieldName) value = 
             let singleOrAppend _ v = if field.multiple then Seq.append v (Seq.singleton value) else Seq.singleton value 
@@ -181,7 +181,7 @@ module Api =
             }
 
 
-    and Api(data:ApiData, cache:prismic.Infra.ICache<Response>, logger:string->string->unit) =
+    and Api(data:ApiData, cache:prismic.ApiInfra.ICache<Response>, logger:string->string->unit) =
         member this.Refs = data.refs  
                                     |> Seq.groupBy (fun r -> r.label)
                                     |> Seq.fold (fun (m:Map<string, Ref>) (k, t) -> m.Add(k, Seq.head t)) Map.empty

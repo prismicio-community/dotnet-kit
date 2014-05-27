@@ -15,7 +15,7 @@ namespace prismic.csharp.tests
 			var url = "https://private-test.prismic.io/api";
 
 			ExpectInnerException<Api.AuthorizationNeeded>( 
-				() => prismic.extensions.Api.Get (url, new prismic.Infra.NoCache<prismic.Api.Response>(), (l, m) => {}).Wait(),
+				() => prismic.extensions.Api.Get (url, new prismic.ApiInfra.NoCache<prismic.Api.Response>(), (l, m) => {}).Wait(),
 				e => 
 				"https://private-test.prismic.io/auth" == e.Data0);
 		}
@@ -26,7 +26,7 @@ namespace prismic.csharp.tests
 			var url = "https://private-test.prismic.io/api";
 
 			ExpectInnerException<Api.InvalidToken>( 
-				() => prismic.extensions.Api.Get ("dummy-token", url, new prismic.Infra.NoCache<prismic.Api.Response>(), (l, m) => {}).Wait(),
+				() => prismic.extensions.Api.Get ("dummy-token", url, new prismic.ApiInfra.NoCache<prismic.Api.Response>(), (l, m) => {}).Wait(),
 				e => 
 				"https://private-test.prismic.io/auth" == e.Data0);
 		}

@@ -2,15 +2,10 @@
 open System
 open FSharp.Data
 open FSharp.Data.JsonExtensions
-open ShortcutsAndUtils
+open Shortcuts
 open Fragments
 
-module FragmentsParsers = 
-
-    let tryParseHexColor = function
-         | ParseRegex "^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$" d -> Some(d)
-         | _ -> None
-
+module internal FragmentsParsers = 
 
     let parseImageView (f:JsonValue) = {    url=  f?url.AsString(); 
                                             width= f?dimensions?width.AsInteger(); 
@@ -23,20 +18,20 @@ module FragmentsParsers =
 
     let parseColor (f:JsonValue) = 
         let s = f.AsString()
-        let parsed = tryParseHexColor(s) <?-- (lazy raise (ArgumentException("Invalid color value " + s)))  // err : Invalid color value $v // or parsing exception
-        Color(s)
+        let parsed = tryParseHexColor(s) <?-- (lazy raise (ArgumentException("Invalid color value " + s))) 
+        Color({hex=s})
     let parseNumber (f:JsonValue) = 
         Number(
-            f.AsFloat()) // err : Invalid number value $v
+            f.AsFloat()) // err : Invalid number value 
     let parseDate (f:JsonValue) = 
         Date(
-            f.AsDateTime()) // err : Invalid date value $v
+            f.AsDateTime()) // err : Invalid date value 
     let parseText (f:JsonValue) = 
         Text(
-            f.AsString()) // err : Invalid text value $v
+            f.AsString()) // err : Invalid text value 
     let parseSelect (f:JsonValue) = 
         Text(
-            f.AsString()) // err : Invalid text value $v
+            f.AsString()) // err : Invalid text value 
     let parseEmbed (f:JsonValue) = 
         let oembed = f?oembed in
         {
@@ -73,7 +68,7 @@ module FragmentsParsers =
                     size = file?size.AsInteger64(); 
                     filename = file?name.AsString()})
     let parseFragmentMediaLink (f:JsonValue) = Fragment.Link(parseMediaLink(f))
-    let parseStructuredText (f:JsonValue) =  // recheck StructuredText read logic ///////
+    let parseStructuredText (f:JsonValue) =  
         let parseSpan (f:JsonValue) = 
             let type' = f.GetProperty("type").AsString()
             let start = f?start.AsInteger()
@@ -175,7 +170,4 @@ module FragmentsParsers =
 
     
 
-    let asRGB hex = match tryParseHexColor hex with
-                        Some(r :: g :: b :: []) -> (System.Int16.Parse(r), System.Int16.Parse(g), System.Int16.Parse(b))
-                        | _ -> (0s, 0s, 0s)
 

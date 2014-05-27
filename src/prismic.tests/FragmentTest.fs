@@ -9,7 +9,7 @@ open FragmentsHtml
 module FragmentTest =
 
     let await a = a |> Async.RunSynchronously
-    let apiGetNoCache = Api.get (Infra.NoCache() :> Infra.ICache<Api.Response>) (Infra.Logger.NoLogger)
+    let apiGetNoCache = Api.get (ApiInfra.NoCache() :> ApiInfra.ICache<Api.Response>) (ApiInfra.Logger.NoLogger)
 
     [<TestFixture>]
     type ``Query Document and Parse Fragments``() = 

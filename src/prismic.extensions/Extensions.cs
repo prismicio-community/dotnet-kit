@@ -13,41 +13,95 @@ namespace prismic.extensions
 {
 	public static class Api
 	{
-		public static Task<prismic.Api.Response> Submit(this prismic.Api.SearchForm form)
-		{
-			return FSharpAsync.StartAsTask (form.Submit(), FSharpOption<TaskCreationOptions>.None, FSharpOption<CancellationToken>.None);
-		}
 
-		public static Task<prismic.Api.Api> Get(string token, string url, prismic.Infra.ICache<prismic.Api.Response> cache, Action<string, string> logger)
-		{
-			return FSharpAsync.StartAsTask (prismic.Api.get(cache, logger.ToFSharpFunc(),
-				FSharpOption<string>.Some(token), url), FSharpOption<TaskCreationOptions>.None , FSharpOption<CancellationToken>.None);
-		}
-		public static Task<prismic.Api.Api> Get(string url, prismic.Infra.ICache<prismic.Api.Response>  cache, Action<string, string> logger)
+		/// <summary>
+		/// Get the API at a specified url, given a cache and logger.
+		/// </summary>
+		/// <param name="url">URL.</param>
+		/// <param name="cache">Cache.</param>
+		/// <param name="logger">Logger.</param>
+		public static Task<prismic.Api.Api> Get(string url, prismic.ApiInfra.ICache<prismic.Api.Response> cache, Action<string, string> logger)
 		{
 			return FSharpAsync.StartAsTask (prismic.Api.get(cache, logger.ToFSharpFunc(),
 				FSharpOption<string>.None, url), FSharpOption<TaskCreationOptions>.None , FSharpOption<CancellationToken>.None);
 		}
+
+		/// <summary>
+		/// Get the API at a specified url, given an authentication token, a cache and logger.
+		/// </summary>
+		/// <param name="token">Token.</param>
+		/// <param name="url">URL.</param>
+		/// <param name="cache">Cache.</param>
+		/// <param name="logger">Logger.</param>
+		public static Task<prismic.Api.Api> Get(string token, string url, prismic.ApiInfra.ICache<prismic.Api.Response> cache, Action<string, string> logger)
+		{
+			return FSharpAsync.StartAsTask (prismic.Api.get(cache, logger.ToFSharpFunc(),
+				FSharpOption<string>.Some(token), url), FSharpOption<TaskCreationOptions>.None , FSharpOption<CancellationToken>.None);
+		}
+		/// <summary>
+		/// Get the API at a specified url, given an option of authentication token, a cache and logger.
+		/// </summary>
+		/// <param name="maybeToken">Maybe token.</param>
+		/// <param name="url">URL.</param>
+		/// <param name="cache">Cache.</param>
+		/// <param name="logger">Logger.</param>
+		public static Task<prismic.Api.Api> Get(FSharpOption<string> maybeToken, string url, prismic.ApiInfra.ICache<prismic.Api.Response> cache, Action<string, string> logger)
+		{
+			return FSharpAsync.StartAsTask (prismic.Api.get(cache, logger.ToFSharpFunc(), maybeToken, url), 
+				FSharpOption<TaskCreationOptions>.None , FSharpOption<CancellationToken>.None);
+		}
+
+		/// <summary>
+		/// Allows to use on the form a Submit method that will return a regular Task instead of an FSharpAsync
+		/// </summary>
+		/// <returns>The as task.</returns>
+		/// <param name="form">Form.</param>
 		public static SearchFormWithTask SubmitableAsTask(this prismic.Api.SearchForm form)
 		{
 			return new SearchFormWithTask (form);
 		}
-	}
-	public class SearchFormWithTask
-	{
-		private readonly prismic.Api.SearchForm form;
-		internal SearchFormWithTask(prismic.Api.SearchForm form)
+
+		/// <summary>
+		/// Search form wrapper, for providing a Submit method that return a Task.
+		/// </summary>
+		public class SearchFormWithTask
 		{
-			this.form = form;
+			private readonly prismic.Api.SearchForm form;
+			internal SearchFormWithTask(prismic.Api.SearchForm form)
+			{
+				this.form = form;
+			}
+			/// <summary>
+			/// Submit the form and return a Task.
+			/// </summary>
+			public Task<prismic.Api.Response> Submit()
+			{
+				return FSharpAsync.StartAsTask (form.Submit(), FSharpOption<TaskCreationOptions>.None, FSharpOption<CancellationToken>.None);
+			}
 		}
-		public Task<prismic.Api.Response> Submit()
+	}
+
+
+	public static class SearchFormExt
+	{
+		/// <summary>
+		/// Does same as Ref(ref) if ref has some value, else does not set any Ref.
+		/// </summary>
+		/// <returns>The reference.</returns>
+		/// <param name="form">Form.</param>
+		/// <param name="refValue">Reference value.</param>
+		public static prismic.Api.SearchForm Ref(this prismic.Api.SearchForm form, FSharpOption<string> maybeRef)
 		{
-			return FSharpAsync.StartAsTask (form.Submit(), FSharpOption<TaskCreationOptions>.None, FSharpOption<CancellationToken>.None);
+			return maybeRef.Exists() ? form.Ref (maybeRef.Value) : form;
 		}
 	}
 
 	public static class DocumentLinkResolver
 	{
+		/// <summary>
+		/// Buids a document link resolver for the given resolution strategy
+		/// </summary>
+		/// <param name="resolver">Resolver.</param>
 		public static prismic.Api.DocumentLinkResolver For(System.Func<Fragments.DocumentLink, string> resolver)
 		{
 			return prismic.Api.DocumentLinkResolver.For(CoreEx.CreateFunc(resolver));
@@ -311,8 +365,11 @@ namespace prismic.extensions
 			return OptionModule.Map(map, groupOption);
 		}
 
-
-
+		/// <summary>
+		/// Extracts a media link, if there is some, from a link, if there is some.
+		/// </summary>
+		/// <returns>Maybe the media link.</returns>
+		/// <param name="link">Maybe a Link.</param>
 		public static FSharpOption<Fragments.MediaLink> BindAsMediaLink(this FSharpOption<Fragments.Fragment.Link> link)
 		{
 			var map = CoreEx.CreateFunc<Fragments.Fragment.Link, FSharpOption<Fragments.MediaLink>> (
@@ -321,6 +378,11 @@ namespace prismic.extensions
 				: FSharpOption<Fragments.MediaLink>.None);
 			return OptionModule.Bind (map, link);
 		}
+		/// <summary>
+		/// Extracts a document link, if there is some, from a link, if there is some.
+		/// </summary>
+		/// <returns>Maybe the document link.</returns>
+		/// <param name="link">Maybe a Link.</param>
 		public static FSharpOption<Fragments.DocumentLink> BindAsDocumentLink(this FSharpOption<Fragments.Fragment.Link> link)
 		{
 			var map = CoreEx.CreateFunc<Fragments.Fragment.Link, FSharpOption<Fragments.DocumentLink>> (
@@ -329,6 +391,11 @@ namespace prismic.extensions
 				: FSharpOption<Fragments.DocumentLink>.None);
 			return OptionModule.Bind (map, link);
 		}
+		/// <summary>
+		/// Extracts a web link, if there is some, from a link, if there is some.
+		/// </summary>
+		/// <returns>Maybe the web link.</returns>
+		/// <param name="link">Maybe a Link.</param>
 		public static FSharpOption<Fragments.WebLink> BindAsWebLink(this FSharpOption<Fragments.Fragment.Link> link)
 		{
 			var map = CoreEx.CreateFunc<Fragments.Fragment.Link, FSharpOption<Fragments.WebLink>> (
@@ -338,7 +405,11 @@ namespace prismic.extensions
 			return OptionModule.Bind (map, link);
 		}
 			
-
+		/// <summary>
+		/// Extracts a media link, if there is some, from a fragment, if there is some.
+		/// </summary>
+		/// <returns>Maybe the media link.</returns>
+		/// <param name="link">Maybe a Link.</param>
 		public static FSharpOption<Fragments.MediaLink> BindAsMediaLink(this FSharpOption<Fragments.Fragment> fragment)
 		{
 			var map = CoreEx.CreateFunc<Fragments.Fragment, FSharpOption<Fragments.Fragment.Link>> (
@@ -347,6 +418,11 @@ namespace prismic.extensions
 				: FSharpOption<Fragments.Fragment.Link>.None);
 			return OptionModule.Bind (map, fragment).BindAsMediaLink();
 		}
+		/// <summary>
+		/// Extracts a document link, if there is some, from a fragment, if there is some.
+		/// </summary>
+		/// <returns>Maybe the document link.</returns>
+		/// <param name="link">Maybe a Link.</param>
 		public static FSharpOption<Fragments.DocumentLink> BindAsDocumentLink(this FSharpOption<Fragments.Fragment> fragment)
 		{
 			var map = CoreEx.CreateFunc<Fragments.Fragment, FSharpOption<Fragments.Fragment.Link>> (
@@ -355,6 +431,11 @@ namespace prismic.extensions
 				: FSharpOption<Fragments.Fragment.Link>.None);
 			return OptionModule.Bind (map, fragment).BindAsDocumentLink();
 		}
+		/// <summary>
+		/// Extracts a web link, if there is some, from a fragment, if there is some.
+		/// </summary>
+		/// <returns>Maybe the web link.</returns>
+		/// <param name="link">Maybe a Link.</param>
 		public static FSharpOption<Fragments.WebLink> BindAsWebLink(this FSharpOption<Fragments.Fragment> fragment)
 		{
 			var map = CoreEx.CreateFunc<Fragments.Fragment, FSharpOption<Fragments.Fragment.Link>> (
@@ -364,6 +445,12 @@ namespace prismic.extensions
 			return OptionModule.Bind (map, fragment).BindAsWebLink();
 		}
 
+		/// <summary>
+		/// Tries to return HTML from a fragment option, given the link resolver.
+		/// </summary>
+		/// <returns>Maybe the HTML.</returns>
+		/// <param name="fragment">the fragment option.</param>
+		/// <param name="linkResolver">link Resolver.</param>
 		public static FSharpOption<string> BindAsHtml<T>(this FSharpOption<T> fragment, prismic.Api.DocumentLinkResolver linkResolver)
 			where T : Fragments.Fragment
 		{
@@ -378,6 +465,12 @@ namespace prismic.extensions
 			var map = CoreEx.CreateFunc<Fragments.Fragment, string> (f => FragmentsHtml.asHtml (applyResolver, f));
 			return OptionModule.Map(map, fragment);
 		}*/
+
+		/// <summary>
+		/// Tries to return HTML from an image view option
+		/// </summary>
+		/// <returns>The html.</returns>
+		/// <param name="imageView">Image view.</param>
 		public static FSharpOption<string> BindAsHtml(this FSharpOption<Fragments.ImageView> imageView)
 		{
 			var map = CoreEx.CreateFunc<Fragments.ImageView, string> (i => FragmentsHtml.imageViewAsHtml (i));

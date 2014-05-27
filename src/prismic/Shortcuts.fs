@@ -3,7 +3,7 @@ open System.Web
 open FSharp.Data
 open FSharp.Data.JsonExtensions
 
-module ShortcutsAndUtils =
+module internal Shortcuts =
 
     let inline (<?-) a d = match a with | Some(v) -> v | None -> d // getOrElse (defaultArg)
     let inline (<?--) a (d:'d Lazy) = match a with | Some(v) -> v | None -> d.Force() // getOrElse lazy
@@ -31,6 +31,7 @@ module ShortcutsAndUtils =
         = jsonvalue.Properties |> Array.fold (fun (m:Map<string,'a>) (k,v) -> m.Add(k, tovalue(v))) Map.empty 
     let asStringMapFromProperties = asMapFromProperties asString
 
+
     let (|JsonArray|_|) (x:JsonValue) = match x with JsonValue.Array elements -> Some(elements) | _ -> None
         
     // active pattern for parsing regex and capture matches 
@@ -39,6 +40,15 @@ module ShortcutsAndUtils =
                                if m.Success
                                then Some (List.tail [ for x in m.Groups -> x.Value ])
                                else None
+
+    let tryParseHexColor = function
+     | ParseRegex "^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$" d -> Some(d)
+     | _ -> None
+
+    let tryParseIndexedKey = function
+         | ParseRegex "^([^\[]+)(\[\d+\])?$" d -> Some(d)
+         | _ -> None
+
     
     // shortcut for head option
     let seqheadoption s = s |> Seq.tryPick Some
@@ -49,15 +59,15 @@ module ShortcutsAndUtils =
     /// Splits this list into a prefix/suffix pair according to a predicate
     /// returns a pair consisting of the longest prefix of this list whose elements all satisfy pred, and the rest of this list.
     let span (pred:'a -> bool) (a:'a list) = 
-                let rec loop acc l = match l with
-                                        head :: tail -> if pred(head) then loop (head :: acc) tail 
-                                                                        else (acc, l)
-                                        | [] -> (acc, [])
-                let (acc, rest) = loop [] a
-                (acc |> List.rev, rest)
+            let rec loop acc l = match l with
+                                    head :: tail -> if pred(head) then loop (head :: acc) tail 
+                                                                  else (acc, l)
+                                    | [] -> (acc, [])
+            let (acc, rest) = loop [] a
+            (acc |> List.rev, rest)
 
 
-    // a simple list for better cons (* a John Hughes list *)
+    // a simple list for better cons 
     type 'a hlist = 'a list -> 'a list  
     let empty : 'a hlist = let id xs = xs in id
     let append xs ys = fun tail -> xs (ys tail)

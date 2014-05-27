@@ -7,7 +7,7 @@ open System.Net
 open System.Reflection
 open System.Web
 
-module ApiCore =
+module internal ApiCore =
 
     let inline reraisePreserveStackTrace (e:Exception) =
         let remoteStackTraceString = typeof<exn>.GetField("_remoteStackTraceString", BindingFlags.Instance ||| BindingFlags.NonPublic);
@@ -49,10 +49,10 @@ module ApiCore =
         with 
             | :? WebException as ex -> // there was an exception but we have a response
                 let response = ex.Response :?> HttpWebResponse
-                let headers = mapHeaders response.Headers
                 match response with 
                     | null -> return reraisePreserveStackTrace ex
                     | _ ->  let! r = read response
+                            let headers = mapHeaders response.Headers
                             return { statusCode = response.StatusCode ; statusText = response.StatusDescription ; body = r ; headers = headers }
             | e -> return reraisePreserveStackTrace e // no response, throw (copy stack since we are in an async computation)
     }

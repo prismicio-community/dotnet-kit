@@ -81,7 +81,7 @@ module Api =
 
 
     type SearchForm =
-        new : form:Form * values:Map<string, string seq> * cache:prismic.Infra.ICache<Response> * logger:(string->string->unit) -> SearchForm
+        new : form:Form * values:Map<string, string seq> * cache:prismic.ApiInfra.ICache<Response> * logger:(string->string->unit) -> SearchForm
         member Orderings : o:string -> SearchForm
         member Page : p:int -> SearchForm
         member PageSize : p:int -> SearchForm
@@ -93,7 +93,7 @@ module Api =
         member Submit : unit -> Async<Response>
 
     type Api =
-        new : data:ApiData * cache:prismic.Infra.ICache<Response> * logger:(string->string->unit) -> Api
+        new : data:ApiData * cache:prismic.ApiInfra.ICache<Response> * logger:(string->string->unit) -> Api
         member Bookmarks : Map<string, string>
         member Forms : Map<string, SearchForm>
         member Master : Ref
@@ -109,7 +109,7 @@ module Api =
     /// <returns>an API.</returns>
     /// <exception cref="prismic.FetchingException">Thrown when the response fails to be retreived.</exception>
     /// <exception cref="prismic.ParsingException">Thrown when the response fails to be parsed.</exception>
-    val get : cache:prismic.Infra.ICache<Response> -> logger: (string -> string -> unit) -> token:string option -> url:string -> Async<Api>
+    val get : cache:prismic.ApiInfra.ICache<Response> -> logger: (string -> string -> unit) -> token:string option -> url:string -> Async<Api>
 
     /// <summary>Make HTML for a Fragement.</summary>
     /// <param name="linkResolver">Resolves the links within the document.</param>

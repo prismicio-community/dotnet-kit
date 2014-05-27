@@ -2,10 +2,10 @@
 open FSharp.Data
 open FSharp.Data.JsonExtensions
 open System
-open ShortcutsAndUtils
+open Shortcuts
 
 module Fragments =
-    
+
     /// fragments types
 
     type ImageView = { url: string; width: int; height: int; alt: string option}
@@ -30,11 +30,15 @@ module Fragments =
                 | Embed of Embed
     and StructuredText = Span of Span
                          | Block of Block
+    and Color = { hex:string }
+                    member x.asRGB = match tryParseHexColor x.hex with
+                                        Some(r :: g :: b :: []) -> (System.Int16.Parse(r), System.Int16.Parse(g), System.Int16.Parse(b))
+                                        | _ -> (0s, 0s, 0s)
     and Fragment =  | Link of Link
                     | Text of string
                     | Date of DateTime
                     | Number of float // or double ?
-                    | Color of string
+                    | Color of Color
                     | Embed of Embed 
                     | Image of (ImageView * Map<string, ImageView>) // (main * views)
                     | Group of GroupDoc seq

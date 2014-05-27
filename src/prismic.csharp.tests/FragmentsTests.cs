@@ -14,7 +14,7 @@ namespace prismic.csharp.tests
 		public void ShouldAccessGroupField()
 		{
 			var url = "https://micro.prismic.io/api";
-			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.Infra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
+			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.ApiInfra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
 			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.type, ""docchapter"")]]").SubmitableAsTask();
 
 			var document = form.Submit().Result.results.First();
@@ -32,7 +32,7 @@ namespace prismic.csharp.tests
 		public void ShouldSerializeGroupToHTML()
 		{
 			var url = "https://micro.prismic.io/api";
-			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.Infra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
+			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.ApiInfra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
 			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.type, ""docchapter"")]]").SubmitableAsTask();
 
 			var document = form.Submit().Result.results.ElementAt(1);
@@ -55,7 +55,7 @@ namespace prismic.csharp.tests
 		public void ShouldAccessMediaLink()
 		{
 			var url = "https://test-public.prismic.io/api";
-			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.Infra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
+			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.ApiInfra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
 			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.id, ""Uyr9_wEAAKYARDMV"")]]").SubmitableAsTask();
 
 			var document = form.Submit().Result.results.First();
@@ -69,7 +69,7 @@ namespace prismic.csharp.tests
 		public void ShouldAccessFirstLinkInMultipleDocumentLink()
 		{
 			var url = "https://lesbonneschoses.prismic.io/api";
-			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.Infra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
+			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.ApiInfra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
 			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.id, ""UkL0gMuvzYUANCpi"")]]").SubmitableAsTask();
 
 			var document = form.Submit().Result.results.First();
@@ -82,7 +82,7 @@ namespace prismic.csharp.tests
 		public void ShouldFindAllLinksInMultipleDocumentLink()
 		{
 			var url = "https://lesbonneschoses.prismic.io/api";
-			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.Infra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
+			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.ApiInfra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
 			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.id, ""UkL0gMuvzYUANCpi"")]]").SubmitableAsTask();
 
 			var document = form.Submit().Result.results.First();
@@ -96,7 +96,7 @@ namespace prismic.csharp.tests
 		public void ShouldAccessStructuredText()
 		{
 			var url = "https://lesbonneschoses.prismic.io/api";
-			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.Infra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
+			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.ApiInfra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
 			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.id, ""UkL0gMuvzYUANCpu"")]]").SubmitableAsTask();
 
 			var document = form.Submit().Result.results.First();
@@ -109,7 +109,7 @@ namespace prismic.csharp.tests
 		public void ShouldAccessImage()
 		{
 			var url = "https://test-public.prismic.io/api";
-			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.Infra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
+			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.ApiInfra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
 			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.id, ""Uyr9sgEAAGVHNoFZ"")]]").SubmitableAsTask();
 
 			var document = form.Submit().Result.results.First();

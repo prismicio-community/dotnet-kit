@@ -4,7 +4,7 @@ open FSharp.Data.JsonExtensions
 open System
 open Fragments
 open FragmentsGetters
-open ShortcutsAndUtils
+open Shortcuts
 
 module FragmentsHtml =
 

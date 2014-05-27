@@ -12,9 +12,9 @@ module ApiTest =
             Assert.Fail("expected exception was not raised")
         with | e -> match matchesException(e) with
                     | true -> Assert.That(true)
-                    | _ -> Assert.Fail(sprintf "unexpected type of exception happened: %s %s" (e.GetType().Name) e.Message)
+                    | _ -> reraise()//Assert.Fail(sprintf "unexpected type of exception happened: %s %s" (e.GetType().Name) e.Message)
     
-    let apiGetNoCache = Api.get (Infra.NoCache() :> Infra.ICache<Api.Response>) (Infra.Logger.NoLogger)
+    let apiGetNoCache = Api.get (ApiInfra.NoCache() :> ApiInfra.ICache<Api.Response>) (ApiInfra.Logger.NoLogger)
 
     [<TestFixture>]
     type ``Get Private Api``() = 

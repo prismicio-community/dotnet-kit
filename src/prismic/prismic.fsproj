@@ -45,11 +45,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Infra.fsi" />
+    <Compile Include="ApiInfra.fsi" />
     <Compile Include="Fragments.fsi" />
+    <Compile Include="FragmentsHtml.fsi" />
     <Compile Include="Api.fsi" />
-    <Compile Include="ShortcutsAndUtils.fs" />
-    <Compile Include="Infra.fs" />
+    <Compile Include="Shortcuts.fs" />
+    <Compile Include="ApiInfra.fs" />
     <Compile Include="Fragments.fs" />
     <Compile Include="FragmentsParsers.fs" />
     <Compile Include="FragmentsGetters.fs" />

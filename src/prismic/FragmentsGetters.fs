@@ -1,13 +1,9 @@
 ﻿namespace prismic
 open System
 open Fragments
-open ShortcutsAndUtils
+open Shortcuts
 
 module FragmentsGetters = 
-
-    let tryParseIndexedKey = function
-         | ParseRegex "^([^\[]+)(\[\d+\])?$" d -> Some(d)
-         | _ -> None
 
 
     let getTitle = function
@@ -39,7 +35,7 @@ module FragmentsGetters =
                         | _ -> Seq.empty
 
 
-    let getAll field fragmentMap = 
+    let getAll field (fragmentMap:Map<string, Fragment>) = 
         let matchKey (a:string) =
             tryParseIndexedKey(a) |> Option.bind (fun k -> if k.Head = field then Some(k) else None)
         fragmentMap |> Map.filter (fun k v -> matchKey(k) |> Option.isSome) |> Map.toSeq |> Seq.map snd
@@ -134,7 +130,7 @@ module FragmentsGetters =
                                         | StructuredText(blocks) -> 
                                             blocks |> buildBlockTextOption 
                                         | Number(f) -> Some(f.ToString())
-                                        | Color(c) -> Some(c)
+                                        | Color(c) -> Some(c.hex)
                                         | Text(t) -> filterNotEmpty t
                                         | Date(d) -> Some(d.ToString()) // format date
                                         | _ -> None)

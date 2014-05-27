@@ -1,8 +1,8 @@
 ﻿namespace prismic
 open FSharp.Data
 
-/// Signature file for the Infra module
-module Infra =
+/// Signature file for the ApiInfra module
+module ApiInfra =
 
     /// Cache interface, allows to provide a caching strategy for Api Responses 
     [<Interface>]

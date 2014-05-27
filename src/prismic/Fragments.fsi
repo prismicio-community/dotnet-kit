@@ -6,6 +6,7 @@ open FSharp.Data
 module Fragments =
 
     type ImageView = {url: string; width: int; height: int; alt: string option}
+                        with member ImageRatio : int end
     and DocumentLink =
       { id: string;
        typ: string;
@@ -37,12 +38,14 @@ module Fragments =
     and StructuredText =
       | Span of Span
       | Block of Block
+    and Color = 
+        { hex:string } with member asRGB : Int16 * Int16 * Int16 end
     and Fragment =
       | Link of Link
       | Text of string
       | Date of System.DateTime
       | Number of float
-      | Color of string
+      | Color of Color
       | Embed of Embed
       | Image of (ImageView * Map<string,ImageView>) // main view, views
       | Group of seq<GroupDoc>

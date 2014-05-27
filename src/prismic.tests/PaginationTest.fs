@@ -9,7 +9,7 @@ module PaginationTest =
     type ``Query The Api With Pagination``() = 
 
         let await a = a |> Async.RunSynchronously
-        let apiGetNoCache = Api.get (Infra.NoCache() :> Infra.ICache<Api.Response>) (Infra.Logger.NoLogger)
+        let apiGetNoCache = Api.get (ApiInfra.NoCache() :> ApiInfra.ICache<Api.Response>) (ApiInfra.Logger.NoLogger)
 
         [<Test>]
         member x.``Can Return first page``() =
