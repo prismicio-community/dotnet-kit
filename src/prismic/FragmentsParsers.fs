@@ -26,6 +26,9 @@ module internal FragmentsParsers =
     let parseDate (f:JsonValue) = 
         Date(
             f.AsDateTime()) // err : Invalid date value 
+    let parseUnixMsDate (f:JsonValue) = 
+        Date(
+            asDateTimeFromUnixMs f) // err : Invalid date value 
     let parseText (f:JsonValue) = 
         Text(
             f.AsString()) // err : Invalid text value 

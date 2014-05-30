@@ -1,4 +1,5 @@
 ﻿namespace prismic
+open System
 open System.Web
 open FSharp.Data
 open FSharp.Data.JsonExtensions
@@ -8,14 +9,18 @@ module internal Shortcuts =
     let inline (<?-) a d = match a with | Some(v) -> v | None -> d // getOrElse (defaultArg)
     let inline (<?--) a (d:'d Lazy) = match a with | Some(v) -> v | None -> d.Force() // getOrElse lazy
 
+    let fromUnixTimeMs unixTimeMs = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds(float unixTimeMs)
+
     // helpers for json values
     let inline (>?) (x:JsonValue) propertyName = x.TryGetProperty propertyName
     let asString (jsonvalue:JsonValue) = jsonvalue.AsString()
     let asDateTime (jsonvalue:JsonValue) = jsonvalue.AsDateTime()
+    let asDateTimeFromUnixMs (jsonvalue:JsonValue) = fromUnixTimeMs (jsonvalue.AsInteger64())
     let asBoolean (jsonvalue:JsonValue) = jsonvalue.AsBoolean()
     let asInteger (jsonvalue:JsonValue) = jsonvalue.AsInteger()
     let asSomethingOption f (jsonvalue:JsonValue option) = match jsonvalue with | Some(JsonValue.Null) -> None | Some(j) -> Some(f(j)) | None -> None
     let asDateTimeOption = asSomethingOption asDateTime
+    let asDateTimeFromUnixMsOption = asSomethingOption asDateTimeFromUnixMs
     let asBooleanOption = asSomethingOption asBoolean
     let asStringOption = asSomethingOption asString
     let asIntegerOption = asSomethingOption asInteger
