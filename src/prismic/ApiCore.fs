@@ -40,6 +40,7 @@ module internal ApiCore =
                     yield (key, headers.GetValues(i)) } |> Map.ofSeq
 
         try
+            logger "DEBUG" ("Making request: "+request.RequestUri.AbsoluteUri)
             use! response = request.AsyncGetResponse()
             let! r = read response
 
@@ -59,10 +60,6 @@ module internal ApiCore =
 
     let buildUrl baseurl (values:Map<string, string seq>) = 
         let b = System.Uri(baseurl, UriKind.Absolute)
-        (*
-        TODO : check UTF8 encoding 
-        use Uri.EscapeDataString, HttpUtility.UrlEncode
-        *)
         let httpValueCollection = HttpUtility.ParseQueryString(b.Query) // gets a collection with the initial querystring args
         let nameValueCollection = NameValueCollection()
         values |> Map.iter (fun k s -> s |> Seq.iter (fun v -> nameValueCollection.Add(k, v))) // adds the values to a new collection
