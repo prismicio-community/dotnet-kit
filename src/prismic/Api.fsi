@@ -18,14 +18,9 @@ module Api =
 
 
 
-    type DocumentLinkResolver =
-        new : f:(Fragments.DocumentLink -> string) -> DocumentLinkResolver
-        member Apply : documentLink:Fragments.DocumentLink -> string
-        static member For : f:(Fragments.DocumentLink -> string) -> DocumentLinkResolver
-
 
     type Ref = {
-        ref: string;
+        refId: string;
         label: string;
         isMasterRef: bool;
         scheduledAt: System.DateTime option; }
@@ -86,7 +81,7 @@ module Api =
         member Page : p:int -> SearchForm
         member PageSize : p:int -> SearchForm
         member Query : q:string -> SearchForm
-        member Ref : value:string -> SearchForm
+        member Ref : refId:string -> SearchForm
         member Ref : value:Ref -> SearchForm
         member Set : fieldName:string * value:string -> SearchForm
         member Set : fieldName:string * value:int -> SearchForm
@@ -100,6 +95,23 @@ module Api =
         member OauthInitiateEndpoint : string
         member OauthTokenEndpoint : string
         member Refs : Map<string, Ref>
+    
+    /// <summary>Builds URL specific to an application, based on a generic prismic.io document link.</summary>
+    type DocumentLinkResolver =
+        new : f:(Fragments.DocumentLink -> string) -> DocumentLinkResolver
+        member Apply : documentLink:Fragments.DocumentLink -> string
+        member Apply : document:Document -> string
+        /// <summary>Builds a document link resolver that will apply the function to document links.
+        /// For C# users, there is an adapter, see prismic.extensions.DocumentLinkResolver</summary>
+        /// <param name="f">the resolving strategy.</param>
+        /// <returns>a DocumentLinkResolver for the given strategy.</returns>
+        static member For : f:(Fragments.DocumentLink -> string) -> DocumentLinkResolver
+        /// <summary>Builds a document link resolver that will apply the function to document links and bookmark.
+        /// For C# users, there is an adapter, see prismic.extensions.DocumentLinkResolver</summary>
+        /// <param name="api">the api.</param>
+        /// <param name="f">the resolving strategy, on document link and evenually a bookmark.</param>
+        /// <returns>a DocumentLinkResolver for the given strategy.</returns>
+        static member For : api:Api * f:(Fragments.DocumentLink -> string option -> string) -> DocumentLinkResolver
 
     /// <summary>Fetches a response from the api for the given url and returns an Api.</summary>
     /// <param name="cache">Caches the responses according to their max-age.</param>

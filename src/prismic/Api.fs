@@ -21,17 +21,13 @@ module Api =
         inherit System.Exception (message, 
             match innerException with | Some(ex) -> ex | _ -> null)
     
-    type DocumentLinkResolver(f) = 
-        static member For(f:Fragments.DocumentLink -> string) = DocumentLinkResolver(f)
-        member this.Apply(documentLink) = f(documentLink)
-    
 
-    type Ref = { ref:string; label:string; isMasterRef:bool; scheduledAt:System.DateTime option }
+    type Ref = { refId:string; label:string; isMasterRef:bool; scheduledAt:System.DateTime option }
                        static member fromJson (json:JsonValue) = {
-                            ref = json?ref.AsString(); 
+                            refId = json?ref.AsString(); 
                             label = json?label.AsString(); 
                             isMasterRef = (asBooleanOption(json>?"isMasterRef")) <?- false; 
-                            scheduledAt = asDateTimeOption(json>?"scheduledAt") 
+                            scheduledAt = asDateTimeFromUnixMsOption(json>?"scheduledAt") 
                        }
 
     and Field = { fieldType: string; multiple: bool; fieldDefault: string option }
@@ -119,8 +115,8 @@ module Api =
             let f = tryFindField fieldName
             if f.fieldType <> "Integer" then raise (System.ArgumentException(sprintf "Cannot use a Int as value for the field %s of type %s" fieldName f.fieldType))
             (f,fieldName) <<= (value.ToString())
-        member this.Ref(value:string) = this.Set("ref", value)
-        member this.Ref(value:Ref) = this.Ref(value.ref)
+        member this.Ref(refId:string) = this.Set("ref", refId)
+        member this.Ref(value:Ref) = this.Ref(value.refId)
         member this.Query(q:string) = 
             match form.fields |> Map.tryFind "q" |> Option.map (fun ff -> ff.multiple) with 
                 | Some(true) -> this.Set("q", q)
@@ -201,6 +197,27 @@ module Api =
                     let apidata = tryParse j
                     Api(apidata, cache, logger)
 
+    
+    /// <summary>Builds URL specific to an application, based on a generic prismic.io document link.</summary>
+    type DocumentLinkResolver(f) = 
+        /// <summary>Builds a document link resolver that will apply the function to document links.
+        /// For C# users, there is an adapter, see prismic.extensions.DocumentLinkResolver</summary>
+        /// <param name="f">the resolving strategy.</param>
+        /// <returns>a DocumentLinkResolver for the given strategy.</returns>
+        static member For(f:Fragments.DocumentLink -> string) = DocumentLinkResolver(f)
+        /// <summary>Builds a document link resolver that will apply the function to document links and bookmark.
+        /// For C# users, there is an adapter, see prismic.extensions.DocumentLinkResolver</summary>
+        /// <param name="api">the api.</param>
+        /// <param name="f">the resolving strategy, on document link and evenually a bookmark.</param>
+        /// <returns>a DocumentLinkResolver for the given strategy.</returns>
+        static member For(api:Api, f:Fragments.DocumentLink -> string option -> string) =
+            DocumentLinkResolver(fun link -> f link (api.Bookmarks.TryFind(link.id)))
+        member this.Apply(documentLink) = f(documentLink)
+        member this.Apply(document:Document) = f({ id = document.id;
+                                                   typ = document.typ;
+                                                   tags = document.tags;
+                                                   slug = document.slug;
+                                                   isBroken = false; })
 
 
     let selectFromJson j map = 

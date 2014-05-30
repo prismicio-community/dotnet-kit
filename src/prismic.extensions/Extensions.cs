@@ -98,13 +98,27 @@ namespace prismic.extensions
 
 	public static class DocumentLinkResolver
 	{
-		/// <summary>
-		/// Buids a document link resolver for the given resolution strategy
-		/// </summary>
-		/// <param name="resolver">Resolver.</param>
+		/// <summary>Builds a document link resolver that will apply the function to document links.</summary>
+		/// <param name="f">the resolving strategy.</param>
+		/// <returns>a DocumentLinkResolver for the given strategy.</returns>
 		public static prismic.Api.DocumentLinkResolver For(System.Func<Fragments.DocumentLink, string> resolver)
 		{
-			return prismic.Api.DocumentLinkResolver.For(CoreEx.CreateFunc(resolver));
+			return prismic.Api.DocumentLinkResolver.For(CSharpAdapters.CreateFunc(resolver));
+		}
+		/// <summary>Builds a document link resolver that will apply the function to document links and bookmark.</summary>
+		/// <param name="api">the api.</param>
+		/// <param name="f">the resolving strategy, on document link and evenually a bookmark.</param>
+		/// <returns>a DocumentLinkResolver for the given strategy.</returns>
+		public static prismic.Api.DocumentLinkResolver For(prismic.Api.Api api, System.Func<Fragments.DocumentLink, FSharpOption<string>, string> resolver)
+		{
+			FSharpFunc<Fragments.DocumentLink, FSharpFunc<FSharpOption<string>, string>> f = resolver.FCurry ();
+			return prismic.Api.DocumentLinkResolver.For (api, f);
+		}			
+
+		private static FSharpFunc<A, FSharpFunc<B, R>> FCurry<A, B, R>(this Func<A, B, R> f)
+		{
+			return
+				CSharpAdapters.CreateFunc<A, FSharpFunc<B, R>> (a => CSharpAdapters.CreateFunc<B, R>(b => f (a, b)));
 		}
 	}
 
@@ -289,14 +303,14 @@ namespace prismic.extensions
 		private static FSharpOption<Fragments.Fragment.Link> GetLink(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var linkOption = FragmentsGetters.getLink (field, fragmentsMap);
-			var map = CoreEx.CreateFunc<Fragments.Fragment, Fragments.Fragment.Link>(o => (Fragments.Fragment.Link)o);
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Link>(o => (Fragments.Fragment.Link)o);
 			return OptionModule.Map(map, linkOption);
 		}
 
 		private static FSharpOption<Fragments.Fragment.Image> GetImage(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var imageOption = FragmentsGetters.getImage (field, fragmentsMap);
-			var map = CoreEx.CreateFunc<Fragments.Fragment, Fragments.Fragment.Image>(o => (Fragments.Fragment.Image)o);
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Image>(o => (Fragments.Fragment.Image)o);
 			return OptionModule.Map(map, imageOption);
 		}
 
@@ -321,7 +335,7 @@ namespace prismic.extensions
 		private static FSharpOption<Fragments.Fragment.StructuredText> GetStructuredText(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var textOption = FragmentsGetters.getStructuredText (field, fragmentsMap);
-			var map = CoreEx.CreateFunc<Fragments.Fragment, Fragments.Fragment.StructuredText>(o => (Fragments.Fragment.StructuredText)o);
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.StructuredText>(o => (Fragments.Fragment.StructuredText)o);
 			return OptionModule.Map(map, textOption);
 		}
 
@@ -333,21 +347,21 @@ namespace prismic.extensions
 		private static FSharpOption<Fragments.Fragment.Color> GetColor(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var colorOption = FragmentsGetters.getColor (field, fragmentsMap);
-			var map = CoreEx.CreateFunc<Fragments.Fragment, Fragments.Fragment.Color>(o => (Fragments.Fragment.Color)o);
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Color>(o => (Fragments.Fragment.Color)o);
 			return OptionModule.Map(map, colorOption);
 		}
 
 		private static FSharpOption<Fragments.Fragment.Number> GetNumber(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var numberOption = FragmentsGetters.getNumber (field, fragmentsMap);
-			var map = CoreEx.CreateFunc<Fragments.Fragment, Fragments.Fragment.Number>(o => (Fragments.Fragment.Number)o);
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Number>(o => (Fragments.Fragment.Number)o);
 			return OptionModule.Map(map, numberOption);
 		}
 
 		private static FSharpOption<Fragments.Fragment.Date> GetDate(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var dateOption = FragmentsGetters.getDate (field, fragmentsMap);
-			var map = CoreEx.CreateFunc<Fragments.Fragment, Fragments.Fragment.Date>(o => (Fragments.Fragment.Date)o);
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Date>(o => (Fragments.Fragment.Date)o);
 			return OptionModule.Map(map, dateOption);
 		}
 
@@ -361,7 +375,7 @@ namespace prismic.extensions
 		private static FSharpOption<Fragments.Fragment.Group> GetGroup(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var groupOption = FragmentsGetters.getGroup (field, fragmentsMap);
-			var map = CoreEx.CreateFunc<Fragments.Fragment, Fragments.Fragment.Group>(o => (Fragments.Fragment.Group)o);
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Group>(o => (Fragments.Fragment.Group)o);
 			return OptionModule.Map(map, groupOption);
 		}
 
@@ -372,7 +386,7 @@ namespace prismic.extensions
 		/// <param name="link">Maybe a Link.</param>
 		public static FSharpOption<Fragments.MediaLink> BindAsMediaLink(this FSharpOption<Fragments.Fragment.Link> link)
 		{
-			var map = CoreEx.CreateFunc<Fragments.Fragment.Link, FSharpOption<Fragments.MediaLink>> (
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment.Link, FSharpOption<Fragments.MediaLink>> (
 				l => l.Item.IsMediaLink 
 				? FSharpOption<Fragments.MediaLink>.Some(((Fragments.Link.MediaLink)l.Item).Item) 
 				: FSharpOption<Fragments.MediaLink>.None);
@@ -385,7 +399,7 @@ namespace prismic.extensions
 		/// <param name="link">Maybe a Link.</param>
 		public static FSharpOption<Fragments.DocumentLink> BindAsDocumentLink(this FSharpOption<Fragments.Fragment.Link> link)
 		{
-			var map = CoreEx.CreateFunc<Fragments.Fragment.Link, FSharpOption<Fragments.DocumentLink>> (
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment.Link, FSharpOption<Fragments.DocumentLink>> (
 				l => l.Item.IsDocumentLink 
 				? FSharpOption<Fragments.DocumentLink>.Some(((Fragments.Link.DocumentLink)l.Item).Item) 
 				: FSharpOption<Fragments.DocumentLink>.None);
@@ -398,7 +412,7 @@ namespace prismic.extensions
 		/// <param name="link">Maybe a Link.</param>
 		public static FSharpOption<Fragments.WebLink> BindAsWebLink(this FSharpOption<Fragments.Fragment.Link> link)
 		{
-			var map = CoreEx.CreateFunc<Fragments.Fragment.Link, FSharpOption<Fragments.WebLink>> (
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment.Link, FSharpOption<Fragments.WebLink>> (
 				l => l.Item.IsWebLink
 				? FSharpOption<Fragments.WebLink>.Some(((Fragments.Link.WebLink)l.Item).Item) 
 				: FSharpOption<Fragments.WebLink>.None);
@@ -412,7 +426,7 @@ namespace prismic.extensions
 		/// <param name="link">Maybe a Link.</param>
 		public static FSharpOption<Fragments.MediaLink> BindAsMediaLink(this FSharpOption<Fragments.Fragment> fragment)
 		{
-			var map = CoreEx.CreateFunc<Fragments.Fragment, FSharpOption<Fragments.Fragment.Link>> (
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, FSharpOption<Fragments.Fragment.Link>> (
 				l => l.IsLink
 				? FSharpOption<Fragments.Fragment.Link>.Some((Fragments.Fragment.Link)l) 
 				: FSharpOption<Fragments.Fragment.Link>.None);
@@ -425,7 +439,7 @@ namespace prismic.extensions
 		/// <param name="link">Maybe a Link.</param>
 		public static FSharpOption<Fragments.DocumentLink> BindAsDocumentLink(this FSharpOption<Fragments.Fragment> fragment)
 		{
-			var map = CoreEx.CreateFunc<Fragments.Fragment, FSharpOption<Fragments.Fragment.Link>> (
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, FSharpOption<Fragments.Fragment.Link>> (
 				l => l.IsLink
 				? FSharpOption<Fragments.Fragment.Link>.Some((Fragments.Fragment.Link)l) 
 				: FSharpOption<Fragments.Fragment.Link>.None);
@@ -438,7 +452,7 @@ namespace prismic.extensions
 		/// <param name="link">Maybe a Link.</param>
 		public static FSharpOption<Fragments.WebLink> BindAsWebLink(this FSharpOption<Fragments.Fragment> fragment)
 		{
-			var map = CoreEx.CreateFunc<Fragments.Fragment, FSharpOption<Fragments.Fragment.Link>> (
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, FSharpOption<Fragments.Fragment.Link>> (
 				l => l.IsLink
 				? FSharpOption<Fragments.Fragment.Link>.Some((Fragments.Fragment.Link)l) 
 				: FSharpOption<Fragments.Fragment.Link>.None);
@@ -454,15 +468,28 @@ namespace prismic.extensions
 		public static FSharpOption<string> BindAsHtml<T>(this FSharpOption<T> fragment, prismic.Api.DocumentLinkResolver linkResolver)
 			where T : Fragments.Fragment
 		{
-			var applyResolver = CoreEx.CreateFunc<Fragments.DocumentLink, string> (l => linkResolver.Apply (l));
-			var map = CoreEx.CreateFunc<T, string> (f => FragmentsHtml.asHtml (applyResolver, f));
+			var applyResolver = CSharpAdapters.CreateFunc<Fragments.DocumentLink, string> (l => linkResolver.Apply (l));
+			var map = CSharpAdapters.CreateFunc<T, string> (f => FragmentsHtml.asHtml (applyResolver, f));
 			return OptionModule.Map(map, fragment);
+		}
+
+		/// <summary>
+		/// Tries to return HTML from a fragment, given the link resolver.
+		/// </summary>
+		/// <returns>Maybe the HTML.</returns>
+		/// <param name="fragment">the fragment option.</param>
+		/// <param name="linkResolver">link Resolver.</param>
+		public static string AsHtml<T>(this T fragment, prismic.Api.DocumentLinkResolver linkResolver)
+			where T : Fragments.Fragment
+		{
+			var applyResolver = CSharpAdapters.CreateFunc<Fragments.DocumentLink, string> (l => linkResolver.Apply (l));
+			return FragmentsHtml.asHtml (applyResolver, fragment);
 		}
 		/*
 		public static FSharpOption<string> BindAsHtml(this FSharpOption<Fragments.Fragment> fragment, prismic.Api.DocumentLinkResolver linkResolver)
 		{
-			var applyResolver = CoreEx.CreateFunc<Fragments.DocumentLink, string> (l => linkResolver.Apply (l));
-			var map = CoreEx.CreateFunc<Fragments.Fragment, string> (f => FragmentsHtml.asHtml (applyResolver, f));
+			var applyResolver = CSharpAdapters.CreateFunc<Fragments.DocumentLink, string> (l => linkResolver.Apply (l));
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, string> (f => FragmentsHtml.asHtml (applyResolver, f));
 			return OptionModule.Map(map, fragment);
 		}*/
 
@@ -473,7 +500,7 @@ namespace prismic.extensions
 		/// <param name="imageView">Image view.</param>
 		public static FSharpOption<string> BindAsHtml(this FSharpOption<Fragments.ImageView> imageView)
 		{
-			var map = CoreEx.CreateFunc<Fragments.ImageView, string> (i => FragmentsHtml.imageViewAsHtml (i));
+			var map = CSharpAdapters.CreateFunc<Fragments.ImageView, string> (i => FragmentsHtml.imageViewAsHtml (i));
 			return OptionModule.Map(map, imageView);
 		}
 
