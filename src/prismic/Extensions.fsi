@@ -6,12 +6,9 @@ open prismic
     /// adapters for C#
 
     [<Extension>]
-    type CoreEx =
-        new : unit -> CoreEx
-        [<Extension>]
-        static member Exists : opt: 'a option -> bool
-        [<Extension>]
-        static member Value : opt: 'a option -> 'a
+    type CSharpAdapters =
+        new : unit -> CSharpAdapters
+
         [<Extension>]
         static member ToFSharpFunc : func:System.Converter<'a,'b> -> ('a -> 'b)
         [<Extension>]
@@ -27,3 +24,16 @@ open prismic
         static member CreateFunc : func:System.Func<'a,'b,'c> -> ('a -> 'b -> 'c)
         static member CreateFunc : func:System.Func<'a,'b,'c,'d> -> ('a -> 'b -> 'c -> 'd)
  
+
+        [<Extension>]
+        static member Exists : opt: 'a option -> bool
+        [<Extension>]
+        static member Value : opt: 'a option -> 'a
+        [<Extension>]
+        static member Map : opt: 'a option * mapper:System.Func<'a,'b> -> 'b option
+
+        [<Extension>]
+        static member Bind : opt: 'a option * binder:System.Func<'a, 'b option> -> 'b option
+
+        [<Extension>]
+        static member GetOrElse : opt: 'a option * elseValue:'a -> 'a
