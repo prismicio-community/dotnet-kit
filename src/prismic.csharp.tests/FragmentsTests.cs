@@ -45,8 +45,9 @@ namespace prismic.csharp.tests
 
 			var html = maybeGroup.BindAsHtml(resolver);
 			Assert.IsTrue (html.Exists ());
-			Assert.AreEqual(@"<section data-field=""desc""><p>Just testing another field in a group section.</p></section>
-<section data-field=""linktodoc""><a href=""http://localhost/doc/UrDejAEAAFwMyrW9"">installing-meta-micro</a></section>
+			Console.WriteLine (html.Value);
+			Assert.AreEqual(@"<section data-field=""linktodoc""><a href=""http://localhost/doc/UrDejAEAAFwMyrW9"">installing-meta-micro</a></section>
+<section data-field=""desc""><p>Just testing another field in a group section.</p></section>
 <section data-field=""linktodoc""><a href=""http://localhost/doc/UrDmKgEAALwMyrXA"">using-meta-micro</a></section>", html.Value);
 		}
 			

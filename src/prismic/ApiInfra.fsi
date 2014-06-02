@@ -1,5 +1,4 @@
 ﻿namespace prismic
-open FSharp.Data
 
 /// Signature file for the ApiInfra module
 module ApiInfra =

@@ -37,31 +37,32 @@ module Api =
                             fieldDefault = asStringOption(json>?"default")
                         }
 
-    and Form = { name:string option; formMethod:string; rel:string option; enctype:string; action:string; fields:Map<string, Field> } 
+    and Form = { name:string option; formMethod:string; rel:string option; enctype:string; action:string; fields: TupleList<string, Field> } 
                         static member fromJson (json:JsonValue) = { 
                             name = asStringOption(json>?"name");
                             formMethod = json.GetProperty("method").AsString();
                             rel = asStringOption(json>?"rel");
                             enctype = json?enctype.AsString();
                             action = json?action.AsString();
-                            fields = asMapFromProperties (Field.fromJson) (json?fields)
+                            fields = asTupleListFromProperties (Field.fromJson) (json?fields)
                         }
                         member this.defaultData = 
-                            let addDefault s k f = 
-                                f.fieldDefault |> Option.fold (fun m defval -> m |> Map.add k (Seq.singleton defval)) s
-                            this.fields |> Map.fold addDefault Map.empty
+                            let addDefault state (k, f) = 
+                                f.fieldDefault |> Option.fold (fun m defval -> m |> TupleList.add (k, seq { yield defval })) state
+                            this.fields |> TupleList.fold addDefault TupleList.empty
 
-    and ApiData = { refs:Ref seq; bookmarks:Map<string, string>; types:Map<string, string>; tags:string seq; forms:Map<string, Form>; oauthEndpoints:string * string  }
+
+    and ApiData = { refs:Ref seq; bookmarks:Map<string, string>; types:Map<string, string>; tags:string seq; forms: TupleList<string, Form>; oauthEndpoints:string * string  }
                         static member fromJson (json:JsonValue) = { 
                             refs = json?refs.AsArray() |> Array.map Ref.fromJson; 
                             bookmarks = asStringMapFromProperties(json?bookmarks);
                             types = asStringMapFromProperties(json?types);
                             tags = json?tags.AsArray() |> Array.map asString; 
-                            forms = asMapFromProperties (Form.fromJson) (json?forms)
+                            forms = asTupleListFromProperties (Form.fromJson) (json?forms)
                             oauthEndpoints = (json?oauth_initiate.AsString(), json?oauth_token.AsString())
                         }
 
-    and Document = { id: string; typ: string; href: string; tags: string seq; slugs: string seq; fragments: Map<string, Fragments.Fragment> }
+    and Document = { id: string; typ: string; href: string; tags: string seq; slugs: string seq; fragments: TupleList<string, Fragments.Fragment> }
                         member this.slug = this.slugs |> Seq.tryPick Some <?- "-"
                         member this.isTagged = Seq.forall (fun t -> this.tags |> Seq.exists ((=) t))
                         static member fromJson (json:JsonValue) = 
@@ -75,10 +76,9 @@ module Api =
                                         -> elements |> Seq.map (fun (idx, fragment) 
                                                                     -> System.String.Format("{0}.{1}[{2}]", dType, typ, idx), fragment)
                                     | None -> Seq.empty
-
-
+                            
                             let fragments = json?data.GetProperty(dType).Properties |> Seq.ofArray
-                                            |> Seq.collect parseFragmentsField |> Map.ofSeq
+                                            |> Seq.collect parseFragmentsField |> TupleList.ofSeq
 
                             {
                                 id = json?id.AsString();
@@ -101,12 +101,12 @@ module Api =
                                 prevPage = asStringOption(json>?"prev_page")
                             }
 
-    type SearchForm(form, values, cache:prismic.ApiInfra.ICache<Response>, logger) = 
-        let tryFindField fieldName = form.fields |> Map.tryFind fieldName <?-- (lazy raise (System.ArgumentException(sprintf "unknown field %s" fieldName)))
+    type SearchForm(form, values:TupleList<string, string seq>, cache:prismic.ApiInfra.ICache<Response>, logger) = 
+        let tryFindField fieldName = form.fields |> TupleList.valueForKey fieldName <?-- (lazy raise (System.ArgumentException(sprintf "unknown field %s" fieldName)))
         let (<<=) (field,fieldName) value = 
             let singleOrAppend _ v = if field.multiple then Seq.append v (Seq.singleton value) else Seq.singleton value 
-            let fieldValues = values |> Map.tryFind fieldName |> Option.fold singleOrAppend (Seq.singleton value)
-            let newvalues = (values.Remove fieldName).Add(fieldName, fieldValues)
+            let fieldValues = values |> TupleList.valueForKey fieldName |> Option.fold singleOrAppend (Seq.singleton value)
+            let newvalues = values |> TupleList.set (fieldName,  fieldValues)
             SearchForm(form, newvalues, cache, logger)
         member this.Set(fieldName, value:string) = 
             let f = tryFindField fieldName
@@ -118,7 +118,7 @@ module Api =
         member this.Ref(refId:string) = this.Set("ref", refId)
         member this.Ref(value:Ref) = this.Ref(value.refId)
         member this.Query(q:string) = 
-            match form.fields |> Map.tryFind "q" |> Option.map (fun ff -> ff.multiple) with 
+            match form.fields |> TupleList.valueForKey "q" |> Option.map (fun field -> field.multiple) with 
                 | Some(true) -> this.Set("q", q)
                 | Some(false)
                 | _ ->  (*let strip (q:string) = 
@@ -133,7 +133,7 @@ module Api =
             async {
                 match (form.formMethod, form.enctype, form.action) with
                     | ("GET", "application/x-www-form-urlencoded", action) 
-                        ->  let url = ApiCore.buildUrl action values
+                        ->  let url = ApiCore.buildUrl action (values |> TupleList.toMap)
                             match cache.Get url.PathAndQuery with
                                 | Some(cached) -> return cached
                                 | None -> 
@@ -182,7 +182,7 @@ module Api =
                                     |> Seq.groupBy (fun r -> r.label)
                                     |> Seq.fold (fun (m:Map<string, Ref>) (k, t) -> m.Add(k, Seq.head t)) Map.empty
         member this.Bookmarks = data.bookmarks
-        member this.Forms = data.forms |> Map.map (fun k form -> SearchForm(form, form.defaultData, cache, logger))
+        member this.Forms = data.forms |> TupleList.mapValues (fun form -> SearchForm(form, form.defaultData, cache, logger))
         member this.Master = data.refs |> Seq.tryFind (fun r -> r.isMasterRef) <?-- (lazy raise(ParsingException("no master reference found")))
         member this.OauthInitiateEndpoint = fst data.oauthEndpoints
         member this.OauthTokenEndpoint = snd data.oauthEndpoints
@@ -270,5 +270,13 @@ module Api =
     /// <param name="fragment">Fragment to process.</param>
     /// <returns>The HTML.</returns>
     let asHtml (linkResolver:DocumentLinkResolver) = FragmentsHtml.asHtml linkResolver.Apply
+
+    /// <summary>Make HTML for a Document.</summary>
+    /// <param name="linkResolver">Resolves the links within the document.</param>
+    /// <param name="document">Document to process.</param>
+    /// <returns>The HTML.</returns>
+    let documentAsHtml (linkResolver:DocumentLinkResolver) (document:Document) =
+        let asGroupDoc = ({Fragments.GroupDoc.fragments = document.fragments}) |> Seq.singleton
+        FragmentsHtml.asHtml linkResolver.Apply (Fragments.Group(asGroupDoc))
 
 

@@ -38,9 +38,9 @@ module Api =
         rel: string option;
         enctype: string;
         action: string;
-        fields: Map<string,Field>; }
+        fields: TupleList<string, Field>; }
     with
-        member defaultData : Map<string,seq<string>>
+        member defaultData : TupleList<string,seq<string>>
     end
 
 
@@ -49,7 +49,7 @@ module Api =
         bookmarks: Map<string,string>;
         types: Map<string,string>;
         tags: seq<string>;
-        forms: Map<string,Form>;
+        forms: TupleList<string, Form>;
         oauthEndpoints: string * string; }
 
 
@@ -59,7 +59,7 @@ module Api =
         href: string;
         tags: seq<string>;
         slugs: seq<string>;
-        fragments: Map<string,Fragments.Fragment>;}
+        fragments: TupleList<string, Fragments.Fragment>;}
     with
         member isTagged : (seq<string> -> bool)
         member slug : string
@@ -74,9 +74,8 @@ module Api =
             nextPage: string option; 
             prevPage: string option }
 
-
     type SearchForm =
-        new : form:Form * values:Map<string, string seq> * cache:prismic.ApiInfra.ICache<Response> * logger:(string->string->unit) -> SearchForm
+        new : form:Form * values:TupleList<string, string seq> * cache:prismic.ApiInfra.ICache<Response> * logger:(string->string->unit) -> SearchForm
         member Orderings : o:string -> SearchForm
         member Page : p:int -> SearchForm
         member PageSize : p:int -> SearchForm
@@ -90,7 +89,7 @@ module Api =
     type Api =
         new : data:ApiData * cache:prismic.ApiInfra.ICache<Response> * logger:(string->string->unit) -> Api
         member Bookmarks : Map<string, string>
-        member Forms : Map<string, SearchForm>
+        member Forms : TupleList<string, SearchForm>
         member Master : Ref
         member OauthInitiateEndpoint : string
         member OauthTokenEndpoint : string
@@ -130,3 +129,8 @@ module Api =
     val asHtml : linkResolver:DocumentLinkResolver -> (Fragments.Fragment -> string)
 
 
+    /// <summary>Make HTML for a Document.</summary>
+    /// <param name="linkResolver">Resolves the links within the document.</param>
+    /// <param name="document">Document to process.</param>
+    /// <returns>The HTML.</returns>
+    val documentAsHtml : linkResolver:DocumentLinkResolver -> document:Document -> string

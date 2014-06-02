@@ -11,6 +11,19 @@ module internal Shortcuts =
 
     let fromUnixTimeMs unixTimeMs = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds(float unixTimeMs)
 
+    // a simple list for better cons  (* a John Hughes list *)
+    type 'a hlist = 'a list -> 'a list  
+    let empty : 'a hlist = let id xs = xs in id
+    let append xs ys = fun tail -> xs (ys tail)
+    let singleton x = fun tail -> x :: tail
+    let cons x xs = append (singleton x) xs
+    let snoc xs x = append xs (singleton x)
+    let toList : 'a hlist -> 'a list = fun xs -> xs []
+
+    let (@=) = cons
+    let (=@) = snoc
+
+
     // helpers for json values
     let inline (>?) (x:JsonValue) propertyName = x.TryGetProperty propertyName
     let asString (jsonvalue:JsonValue) = jsonvalue.AsString()
@@ -26,12 +39,19 @@ module internal Shortcuts =
     let asIntegerOption = asSomethingOption asInteger
     let asArrayOrEmpty (x:JsonValue) propertyName = match x.TryGetProperty propertyName with Some(a) -> a.AsArray() | None -> [||]
 
-    let asMapFromOptionProperties (tovalue:(JsonValue -> 'a option)) (jsonvalue:JsonValue) 
+    let asTupleListFromOptionProperties (tovalue:(JsonValue -> 'a option)) (jsonvalue:JsonValue) 
         = jsonvalue.Properties 
-            |> Array.fold (fun (m:Map<string,'a>) (k,v) -> 
-                    tovalue(v) |> (Option.fold (fun (s:Map<string,'a>) t -> s.Add(k, t))) m) 
-                    Map.empty 
+            |> Array.fold (fun m (k,v) -> 
+                    tovalue(v) |> (Option.fold (fun s t -> s |> TupleList.add (k, t))) m) 
+                    (TupleList.empty<string, 'a>)
+            |> TupleList.rev
 
+    let asTupleListFromProperties (tovalue:(JsonValue -> 'a)) (jsonvalue:JsonValue) 
+        = jsonvalue.Properties 
+            |> Array.fold (fun (m:TupleList<string,'a>) (k,v) -> m |> TupleList.add (k, tovalue(v))) TupleList.empty<string, 'a> 
+            |> TupleList.rev
+    let asStringTupleListFromProperties = asTupleListFromProperties asString
+    
     let asMapFromProperties (tovalue:(JsonValue -> 'a)) (jsonvalue:JsonValue) 
         = jsonvalue.Properties |> Array.fold (fun (m:Map<string,'a>) (k,v) -> m.Add(k, tovalue(v))) Map.empty 
     let asStringMapFromProperties = asMapFromProperties asString
@@ -72,15 +92,4 @@ module internal Shortcuts =
             (acc |> List.rev, rest)
 
 
-    // a simple list for better cons 
-    type 'a hlist = 'a list -> 'a list  
-    let empty : 'a hlist = let id xs = xs in id
-    let append xs ys = fun tail -> xs (ys tail)
-    let singleton x = fun tail -> x :: tail
-    let cons x xs = append (singleton x) xs
-    let snoc xs x = append xs (singleton x)
-    let toList : 'a hlist -> 'a list = fun xs -> xs []
-
-    let (@=) = cons
-    let (=@) = snoc
 

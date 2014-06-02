@@ -44,8 +44,8 @@ module FragmentTest =
                                 let linkresolver = Api.DocumentLinkResolver.For(fun l -> 
                                     String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
                                 let html = Api.asHtml linkresolver g
-                                Assert.AreEqual("""<section data-field="desc"><p>Just testing another field in a group section.</p></section>
-<section data-field="linktodoc"><a href="http://localhost/doc/UrDejAEAAFwMyrW9">installing-meta-micro</a></section>
+                                Assert.AreEqual("""<section data-field="linktodoc"><a href="http://localhost/doc/UrDejAEAAFwMyrW9">installing-meta-micro</a></section>
+<section data-field="desc"><p>Just testing another field in a group section.</p></section>
 <section data-field="linktodoc"><a href="http://localhost/doc/UrDmKgEAALwMyrXA">using-meta-micro</a></section>""", html)
                             | _ -> Assert.Fail("Result is not of type group")
 

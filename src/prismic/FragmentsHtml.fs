@@ -35,8 +35,8 @@ module FragmentsHtml =
                                         let resolve field = 
                                             getHtml field groupDoc <?- ""
                                         groupDoc 
-                                            |> Map.toSeq 
-                                            |> Seq.map (fun (k, _) -> String.Format("""<section data-field="{0}">{1}</section>""", k, resolve k))
+                                            |> TupleList.mapKeys (fun k -> String.Format("""<section data-field="{0}">{1}</section>""", k, resolve k))
+                                            |> TupleList.allkeys
                                     g |> Seq.collect (fun gd -> groupDocsHtml gd.fragments) |> String.concat "\n" 
                     | StructuredText t 
                         -> 
@@ -66,7 +66,7 @@ module FragmentsHtml =
                                 let spanStart = function Span.Em(start, _) | Span.Strong(start, _) | Span.Hyperlink(start, _, _) -> start
                                 let spanEnd = function Span.Em(_, end') | Span.Strong(_, end') | Span.Hyperlink(_, end', _) -> end'
                                 let rec step in' (startings:Span list) (endings:Span list) (html:hlist<string>) = 
-                                    // get the min of 2 options
+                                    // get the min of 2 optionsHList
                                     let (<-->) (a:int option) b = [a ; b] |> List.choose id |> function [] -> None | x -> Some(List.min x)
                                     let nextOp = 
                                         startings 

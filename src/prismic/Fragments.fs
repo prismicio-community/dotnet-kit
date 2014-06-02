@@ -13,7 +13,7 @@ module Fragments =
     and DocumentLink = { id: string; typ: string; tags: string seq; slug: string; isBroken: bool }
     and WebLink = { url:string; contentType:string option}
     and MediaLink = { url:string; kind:string; size:Int64; filename:string }
-    and GroupDoc = { fragments: Map<string, Fragment> }
+    and GroupDoc = { fragments: TupleList<string, Fragment> }
     and Link = WebLink of WebLink
                 | MediaLink of MediaLink
                 | DocumentLink of DocumentLink
@@ -40,7 +40,7 @@ module Fragments =
                     | Number of float // or double ?
                     | Color of Color
                     | Embed of Embed 
-                    | Image of (ImageView * Map<string, ImageView>) // (main * views)
+                    | Image of (ImageView * TupleList<string, ImageView>) // (main * views)
                     | Group of GroupDoc seq
                     | StructuredText of Block seq
 

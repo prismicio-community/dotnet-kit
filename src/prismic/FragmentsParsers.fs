@@ -13,7 +13,7 @@ module internal FragmentsParsers =
                                             alt= asStringOption(f>?"alt") }
     let parseImage (f:JsonValue) = 
                         let main = parseImageView f?main
-                        let views = asMapFromProperties parseImageView f?views
+                        let views = asTupleListFromProperties parseImageView f?views
                         Image(main, views)
 
     let parseColor (f:JsonValue) = 
@@ -133,7 +133,7 @@ module internal FragmentsParsers =
 
     let rec parseFragment (j:JsonValue) = 
         let parseGroup (f:JsonValue) = 
-            let g = f.AsArray() |> Array.map (fun x -> {fragments = asMapFromOptionProperties parseFragment x}) |> Seq.ofArray
+            let g = f.AsArray() |> Array.map (fun x -> {fragments = asTupleListFromOptionProperties parseFragment x}) |> Seq.ofArray
             Group(g)
 
         let t = j.GetProperty("type").AsString() in 

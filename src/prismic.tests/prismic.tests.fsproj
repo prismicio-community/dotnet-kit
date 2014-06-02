@@ -52,6 +52,8 @@
     <Compile Include="LinkParsingTest.fs" />
     <Compile Include="TextParsingTest.fs" />
     <Compile Include="ShortcutsTest.fs" />
+    <Compile Include="TupleListTest.fs" />
+    <Compile Include="GroupParsingTest.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>

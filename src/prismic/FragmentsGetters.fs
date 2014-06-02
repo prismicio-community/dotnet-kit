@@ -35,13 +35,13 @@ module FragmentsGetters =
                         | _ -> Seq.empty
 
 
-    let getAll field (fragmentMap:Map<string, Fragment>) = 
+    let getAll field (fragmentMap:TupleList<string, Fragment>) = 
         let matchKey (a:string) =
             tryParseIndexedKey(a) |> Option.bind (fun k -> if k.Head = field then Some(k) else None)
-        fragmentMap |> Map.filter (fun k v -> matchKey(k) |> Option.isSome) |> Map.toSeq |> Seq.map snd
+        fragmentMap |> TupleList.values (fun k _ -> matchKey(k) |> Option.isSome) 
 
-    let get field (fragmentMap:Map<string, Fragment>) =
-        let mayBeField = fragmentMap |> Map.tryFind field 
+    let get field (fragmentMap: TupleList<string, Fragment>) =
+        let mayBeField = fragmentMap |> TupleList.valueForKey field
         match mayBeField with Some(_) -> mayBeField
                               | None -> getAll field fragmentMap |> Seq.tryPick Some
 
@@ -60,7 +60,7 @@ module FragmentsGetters =
                                         | StructuredText(blocks) -> 
                                             blocks 
                                                 |> Seq.tryPick (fun b -> match b with 
-                                                                            | Block.Image(v) -> Some(Fragment.Image(v, Map.empty))
+                                                                            | Block.Image(v) -> Some(Fragment.Image(v, TupleList.empty))
                                                                             | _ -> None)
                                         | _ -> None)
 
@@ -71,7 +71,7 @@ module FragmentsGetters =
                                         | Fragment.StructuredText(blocks) -> 
                                             blocks 
                                                 |> Seq.choose (fun b -> match b with 
-                                                                            | Block.Image(v) -> Some(Fragment.Image(v, Map.empty))
+                                                                            | Block.Image(v) -> Some(Fragment.Image(v, TupleList.empty))
                                                                             | _ -> None)
                                         | _ -> Seq.empty)
 
@@ -80,9 +80,8 @@ module FragmentsGetters =
             | Image (v, s) -> 
                     match view.ToLowerInvariant() with
                             "main" -> Some(v)
-                            | _ -> s |> Map.tryFind view
+                            | _ -> s |> TupleList.valueForKey view 
             | _ -> None
-
 
 
     let getImageView field view fragmentMap = 

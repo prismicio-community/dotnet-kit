@@ -289,76 +289,76 @@ namespace prismic.extensions
 		}
 
 
-		public static FSharpOption<Fragments.Fragment> Get(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
+		public static FSharpOption<Fragments.Fragment> Get(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			return FragmentsGetters.get(field, fragmentsMap);
 		}
 
-		public static IEnumerable<Fragments.Fragment> GetAll(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
+		public static IEnumerable<Fragments.Fragment> GetAll(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			return FragmentsGetters.getAll(field, fragmentsMap);
 		}
 
 
-		private static FSharpOption<Fragments.Fragment.Link> GetLink(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
+		private static FSharpOption<Fragments.Fragment.Link> GetLink(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var linkOption = FragmentsGetters.getLink (field, fragmentsMap);
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Link>(o => (Fragments.Fragment.Link)o);
 			return OptionModule.Map(map, linkOption);
 		}
 
-		private static FSharpOption<Fragments.Fragment.Image> GetImage(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
+		private static FSharpOption<Fragments.Fragment.Image> GetImage(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var imageOption = FragmentsGetters.getImage (field, fragmentsMap);
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Image>(o => (Fragments.Fragment.Image)o);
 			return OptionModule.Map(map, imageOption);
 		}
 
-		private static IEnumerable<Fragments.Fragment.Image> GetAllImages(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
+		private static IEnumerable<Fragments.Fragment.Image> GetAllImages(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var images = FragmentsGetters.getAllImages (field, fragmentsMap);
 			return images.Cast<Fragments.Fragment.Image>();
 		}
 
-		private static FSharpOption<Fragments.ImageView> GetImageView(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string view, string field)
+		private static FSharpOption<Fragments.ImageView> GetImageView(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string view, string field)
 		{
 			var imageView = FragmentsGetters.getImageView (view, field, fragmentsMap);
 			return imageView;
 		}
 
-		private static IEnumerable<Fragments.ImageView> GetAllImageViews(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string view, string field)
+		private static IEnumerable<Fragments.ImageView> GetAllImageViews(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string view, string field)
 		{
 			var views = FragmentsGetters.getAllImageViews (field, field, fragmentsMap);
 			return views;
 		}
 
-		private static FSharpOption<Fragments.Fragment.StructuredText> GetStructuredText(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
+		private static FSharpOption<Fragments.Fragment.StructuredText> GetStructuredText(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var textOption = FragmentsGetters.getStructuredText (field, fragmentsMap);
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.StructuredText>(o => (Fragments.Fragment.StructuredText)o);
 			return OptionModule.Map(map, textOption);
 		}
 
-		private static FSharpOption<string> GetText(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
+		private static FSharpOption<string> GetText(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			return FragmentsGetters.getText (field, fragmentsMap);
 		}
 
-		private static FSharpOption<Fragments.Fragment.Color> GetColor(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
+		private static FSharpOption<Fragments.Fragment.Color> GetColor(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var colorOption = FragmentsGetters.getColor (field, fragmentsMap);
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Color>(o => (Fragments.Fragment.Color)o);
 			return OptionModule.Map(map, colorOption);
 		}
 
-		private static FSharpOption<Fragments.Fragment.Number> GetNumber(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
+		private static FSharpOption<Fragments.Fragment.Number> GetNumber(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var numberOption = FragmentsGetters.getNumber (field, fragmentsMap);
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Number>(o => (Fragments.Fragment.Number)o);
 			return OptionModule.Map(map, numberOption);
 		}
 
-		private static FSharpOption<Fragments.Fragment.Date> GetDate(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
+		private static FSharpOption<Fragments.Fragment.Date> GetDate(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var dateOption = FragmentsGetters.getDate (field, fragmentsMap);
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Date>(o => (Fragments.Fragment.Date)o);
@@ -366,13 +366,13 @@ namespace prismic.extensions
 		}
 
 
-		private static bool GetBoolean(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
+		private static bool GetBoolean(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			return FragmentsGetters.getBoolean (field, fragmentsMap);
 		}
 
 
-		private static FSharpOption<Fragments.Fragment.Group> GetGroup(this FSharpMap<string, Fragments.Fragment> fragmentsMap, string field)
+		private static FSharpOption<Fragments.Fragment.Group> GetGroup(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var groupOption = FragmentsGetters.getGroup (field, fragmentsMap);
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Group>(o => (Fragments.Fragment.Group)o);
@@ -476,8 +476,8 @@ namespace prismic.extensions
 		/// <summary>
 		/// Tries to return HTML from a fragment, given the link resolver.
 		/// </summary>
-		/// <returns>Maybe the HTML.</returns>
-		/// <param name="fragment">the fragment option.</param>
+		/// <returns>The HTML.</returns>
+		/// <param name="fragment">the fragment.</param>
 		/// <param name="linkResolver">link Resolver.</param>
 		public static string AsHtml<T>(this T fragment, prismic.Api.DocumentLinkResolver linkResolver)
 			where T : Fragments.Fragment
@@ -504,6 +504,17 @@ namespace prismic.extensions
 			return OptionModule.Map(map, imageView);
 		}
 
+
+		/// <summary>
+		/// Tries to return HTML from a document, given the link resolver.
+		/// </summary>
+		/// <returns>The HTML.</returns>
+		/// <param name="fragment">the document.</param>
+		/// <param name="linkResolver">link Resolver.</param>
+		public static string AsHtml(this prismic.Api.Document document, prismic.Api.DocumentLinkResolver linkResolver)
+		{
+			return prismic.Api.documentAsHtml (linkResolver, document);
+		}
 	}
 
 
