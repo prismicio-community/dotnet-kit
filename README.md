@@ -4,9 +4,11 @@
 
 #### Install the kit for your project
 
-*This is a work in progress*
 
-This kit can be installed using NuGet, by searching for the prismic package.
+This kit can be installed using NuGet [prismic package](https://www.nuget.org/packages/prismic/).
+To install prismic from the [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console), run the following command :
+PM> Install-Package prismic
+
 *(Feel free to detail the proper steps for beginners by [submitting a pull request](https://developers.prismic.io/documentation/UszOeAEAANUlwFpp/contribute-to-the-official-kits).)*
 
 #### Get started with prismic.io
@@ -24,7 +26,6 @@ Also on our [prismic.io developer's portal](https://developers.prismic.io/), on 
 
 You can find the documentation of the .NET kit as comments and unit tests within the kit's source code.
 
- *This is a work in progress*
 
 Thanks to .NET languages' syntax and conventions, this kit contains some mild differences and syntastic sugar over the section of our documentation that tells you [how to use prismic.io kits](https://developers.prismic.io/documentation/UjBe8bGIJ3EKtgBZ/api-documentation#kits-and-helpers) in general (which you should read first).
 This kit has been written in F# and can be used from any .NET language. For your convenience though, if you are developing in C#, a set of extension methods is provided in the prismic.extensions namespace (_prismic.extensions.dll_).
@@ -77,7 +78,6 @@ Contribution is open to all developer levels, read our "[Contribute to the offic
 
 This kit gets installed like any .NET library.
 
-*work in progress*
 *(Feel free to detail the proper steps for beginners by [submitting a pull request](https://developers.prismic.io/documentation/UszOeAEAANUlwFpp/contribute-to-the-official-kits).)*
 
 #### Test
