@@ -64,7 +64,7 @@ Target "CreatePrismicPackage" (fun _ ->
             Version = releaseNotes.AssemblyVersion
             ReleaseNotes = toLines releaseNotes.Notes
             Dependencies =
-                ["FSharp.Data", GetPackageVersion "../packages/" "FSharp.Data"]
+                ["FSharp.Data", "[2.0.7]"]
             References = 
                 ["prismic.dll"; "prismic.extensions.dll"]
             Files = [

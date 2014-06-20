@@ -12,3 +12,6 @@
 * Changed a module name (Infra to ApiInfra)
 * bug fix : ScheduledAt date parsed from unix time
 * Use a Tuple List instead of a Map for storing documents in order to maintain order
+
+### New in 1.0.3 (Released 2014/06/06)
+* Set exact version number of FSharpData

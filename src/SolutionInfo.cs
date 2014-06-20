@@ -3,11 +3,11 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyProductAttribute("prismic")]
-[assembly: AssemblyVersionAttribute("1.0.2")]
-[assembly: AssemblyFileVersionAttribute("1.0.2")]
+[assembly: AssemblyVersionAttribute("1.0.3")]
+[assembly: AssemblyFileVersionAttribute("1.0.3")]
 [assembly: ComVisibleAttribute(false)]
 namespace System {
     internal static class AssemblyVersionInformation {
-        internal const string Version = "1.0.2";
+        internal const string Version = "1.0.3";
     }
 }
