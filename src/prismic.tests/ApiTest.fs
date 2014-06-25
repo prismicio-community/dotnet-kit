@@ -48,3 +48,23 @@ module ApiTest =
                 let api = await (apiGetNoCache token url)
                 let response = await (api.Forms.["everything"].Ref("U0LvJAEAAN8FetQw").PageSize(10).Page(1).Submit())
                 Assert.AreEqual(1, response.page)
+
+        [<Test>]
+        member x.``Should Return linked documents``() = 
+            let url = "https://micro.prismic.io/api"
+            let api = await (apiGetNoCache (Option.None) url)
+            let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.type, "docchapter")]]""")
+            let document = await(form.Submit()).results |> List.head 
+
+            let linkedDocuments = document.linkedDocuments
+            Assert.AreEqual(2, Seq.length linkedDocuments)
+
+            let linked1 = linkedDocuments |> Seq.tryFind (fun l -> l.id = "UrDofwEAALAdpbNH")
+            Assert.IsTrue(linked1.IsSome)
+            Assert.AreEqual("with-jquery",linked1.Value.slug.Value)
+            Assert.AreEqual("doc",linked1.Value.typ)
+
+            let linked2 = linkedDocuments |> Seq.tryFind (fun l -> l.id = "UrDp8AEAAPUdpbNL")
+            Assert.IsTrue(linked2.IsSome)
+            Assert.AreEqual("with-bootstrap",linked2.Value.slug.Value)
+            Assert.AreEqual("doc",linked2.Value.typ)

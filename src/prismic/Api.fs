@@ -62,7 +62,16 @@ module Api =
                             oauthEndpoints = (json?oauth_initiate.AsString(), json?oauth_token.AsString())
                         }
 
-    and Document = { id: string; typ: string; href: string; tags: string seq; slugs: string seq; fragments: TupleList<string, Fragments.Fragment> }
+    and LinkedDocument = { id: string; typ:string; slug: string option; tags: string seq }
+                            static member fromJson (json:JsonValue) = {
+                                id = json?id.AsString();
+                                typ = json.GetProperty("type").AsString();
+                                slug = asStringOption(json>?"slug")
+                                tags = json?tags.AsArray() |> Array.map asString; 
+                            }
+
+    and Document = { id: string; typ: string; href: string; tags: string seq; slugs: string seq; 
+                        fragments: TupleList<string, Fragments.Fragment>; linkedDocuments: LinkedDocument seq }
                         member this.slug = this.slugs |> Seq.tryPick Some <?- "-"
                         member this.isTagged = Seq.forall (fun t -> this.tags |> Seq.exists ((=) t))
                         static member fromJson (json:JsonValue) = 
@@ -86,10 +95,11 @@ module Api =
                                 tags = json?tags.AsArray() |> Array.map asString; 
                                 slugs = json?slugs.AsArray() |> Array.map asString;
                                 typ = dType;
-                                fragments = fragments; 
+                                fragments = fragments;
+                                linkedDocuments = asArrayOrEmpty json "linked_documents" |> Array.map LinkedDocument.fromJson |> List.ofArray; 
                             }
-
-    and Response = { results: List<Document>; page: int; resultsPerPage:int; resultsSize:int; totalResultsSize:int; totalPages:int; nextPage: string option; prevPage: string option }
+                                                                
+    and Response = { results: List<Document>; page: int; resultsPerPage:int; resultsSize:int; totalResultsSize:int; totalPages:int; nextPage: string option; prevPage: string option; }
                         static member fromJson (json:JsonValue) = { 
                                 results = json?results.AsArray() |> Array.map Document.fromJson |> List.ofArray; 
                                 page = json?page.AsInteger();
@@ -98,7 +108,7 @@ module Api =
                                 totalResultsSize = json?total_results_size.AsInteger();
                                 totalPages = json?total_pages.AsInteger();
                                 nextPage = asStringOption(json>?"next_page");
-                                prevPage = asStringOption(json>?"prev_page")
+                                prevPage = asStringOption(json>?"prev_page");
                             }
 
     type SearchForm(form, values:TupleList<string, string seq>, cache:prismic.ApiInfra.ICache<Response>, logger) = 

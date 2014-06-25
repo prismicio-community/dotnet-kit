@@ -52,6 +52,7 @@ module Api =
         forms: TupleList<string, Form>;
         oauthEndpoints: string * string; }
 
+    type LinkedDocument = { id: string; typ:string; slug: string option; tags: string seq }
 
     type Document = {
         id: string;
@@ -59,7 +60,8 @@ module Api =
         href: string;
         tags: seq<string>;
         slugs: seq<string>;
-        fragments: TupleList<string, Fragments.Fragment>;}
+        fragments: TupleList<string, Fragments.Fragment>;
+        linkedDocuments: LinkedDocument seq}
     with
         member isTagged : (seq<string> -> bool)
         member slug : string
