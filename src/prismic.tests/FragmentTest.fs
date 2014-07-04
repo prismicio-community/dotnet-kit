@@ -84,11 +84,11 @@ module FragmentTest =
         member x.``Should Access First Link In Multiple Document Link``() = 
             let url = "https://lesbonneschoses.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
-            let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "UkL0gMuvzYUANCpi")]]""")
+            let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "UlfoxUnM0wkXYXba")]]""")
             let document = await(form.Submit()).results |> List.head 
             let maybeLink = document.fragments |> getLink "job-offer.location"
             match maybeLink with
-                            | Some(Link(DocumentLink(l))) -> Assert.AreEqual("new-york-fifth-avenue", l.slug)
+                            | Some(Link(DocumentLink(l))) -> Assert.AreEqual("paris-saint-lazare", l.slug)
                             | _ -> Assert.Fail("Document Link not found")
 
 
@@ -96,13 +96,13 @@ module FragmentTest =
         member x.``Should Find All Links In Multiple Document Link``() = 
             let url = "https://lesbonneschoses.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
-            let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "UkL0gMuvzYUANCpi")]]""")
+            let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "UlfoxUnM0wkXYXba")]]""")
             let document = await(form.Submit()).results |> List.head 
             let links = document.fragments |> getAll "job-offer.location"
-            Assert.AreEqual(5, links |> Seq.length)
+            Assert.AreEqual(3, links |> Seq.length)
             let link0 = links |> Seq.nth 0
             match link0 with
-                            | Link(DocumentLink(l)) -> Assert.AreEqual("new-york-fifth-avenue", l.slug)
+                            | Link(DocumentLink(l)) -> Assert.AreEqual("paris-saint-lazare", l.slug)
                             | _ -> Assert.Fail("Document Link not found")
             let link1 = links |> Seq.nth 1
             match link1 with
@@ -114,9 +114,9 @@ module FragmentTest =
         member x.``Should Access Structured Text``() = 
             let url = "https://lesbonneschoses.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
-            let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "UkL0gMuvzYUANCpu")]]""")
+            let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "UlfoxUnM0wkXYXbX")]]""")
             let document = await(form.Submit()).results |> List.head 
-            let maybeStructTxt = document.fragments |> getStructuredText "article.content"
+            let maybeStructTxt = document.fragments |> getStructuredText "blog-post.body"
             Assert.IsTrue(maybeStructTxt.IsSome)
 
         [<Test>]

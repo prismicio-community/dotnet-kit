@@ -21,9 +21,9 @@ module PaginationTest =
             Assert.AreEqual(2, r.totalPages)
             Assert.AreEqual(20, r.resultsPerPage)
             Assert.AreEqual(20, r.resultsSize)
-            Assert.AreEqual(Some("https://lesbonneschoses.prismic.io/api/documents/search?ref=UkL0hcuvzYUANCrm&orderings=%5Bmy.docchapter.priority%5D&page=2&pageSize=20"), r.nextPage)
+            Assert.AreEqual(Some("https://lesbonneschoses.prismic.io/api/documents/search?ref=UlfoxUnM08QWYXdl&orderings=%5Bmy.docchapter.priority%5D&page=2&pageSize=20"), r.nextPage)
             Assert.AreEqual(None, r.prevPage)
-            Assert.AreEqual("UkL0gMuvzYUANCpf", (r.results|> List.head).id)
+            Assert.AreEqual("UlfoxUnM0wkXYXbV", (r.results|> List.head).id)
             Assert.AreEqual(20, (r.results.Length))
 
         [<Test>]
@@ -37,7 +37,7 @@ module PaginationTest =
             Assert.AreEqual(20, r.resultsPerPage)
             Assert.AreEqual(20, r.resultsSize)
             Assert.AreEqual(None, r.nextPage)
-            Assert.AreEqual(Some("https://lesbonneschoses.prismic.io/api/documents/search?ref=UkL0hcuvzYUANCrm&orderings=%5Bmy.docchapter.priority%5D&page=1&pageSize=20"), r.prevPage)
+            Assert.AreEqual(Some("https://lesbonneschoses.prismic.io/api/documents/search?ref=UlfoxUnM08QWYXdl&orderings=%5Bmy.docchapter.priority%5D&page=1&pageSize=20"), r.prevPage)
             Assert.AreEqual(20, (r.results.Length))
 
         [<Test>]
@@ -50,6 +50,6 @@ module PaginationTest =
             Assert.AreEqual(6, r.totalPages)
             Assert.AreEqual(7, r.resultsPerPage)
             Assert.AreEqual(7, r.resultsSize)
-            Assert.AreEqual(Some("https://lesbonneschoses.prismic.io/api/documents/search?ref=UkL0hcuvzYUANCrm&orderings=%5Bmy.docchapter.priority%5D&page=2&pageSize=7"), r.nextPage)
+            Assert.AreEqual(Some("https://lesbonneschoses.prismic.io/api/documents/search?ref=UlfoxUnM08QWYXdl&orderings=%5Bmy.docchapter.priority%5D&page=2&pageSize=7"), r.nextPage)
             Assert.AreEqual(None, r.prevPage)
             Assert.AreEqual(7, (r.results.Length))

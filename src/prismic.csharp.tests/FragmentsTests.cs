@@ -71,12 +71,12 @@ namespace prismic.csharp.tests
 		{
 			var url = "https://lesbonneschoses.prismic.io/api";
 			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.ApiInfra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
-			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.id, ""UkL0gMuvzYUANCpi"")]]").SubmitableAsTask();
+			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.id, ""UlfoxUnM0wkXYXba"")]]").SubmitableAsTask();
 
 			var document = form.Submit().Result.results.First();
 			var maybeLink = document.GetLink ("job-offer.location");
 			Assert.IsTrue (maybeLink.Exists(), "link was not found");
-			Assert.AreEqual ("new-york-fifth-avenue", maybeLink.BindAsDocumentLink ().Value.slug);
+			Assert.AreEqual ("paris-saint-lazare", maybeLink.BindAsDocumentLink ().Value.slug);
 		}
 
 		[Test ()]
@@ -84,12 +84,12 @@ namespace prismic.csharp.tests
 		{
 			var url = "https://lesbonneschoses.prismic.io/api";
 			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.ApiInfra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
-			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.id, ""UkL0gMuvzYUANCpi"")]]").SubmitableAsTask();
+			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.id, ""UlfoxUnM0wkXYXba"")]]").SubmitableAsTask();
 
 			var document = form.Submit().Result.results.First();
 			var links = document.GetAll ("job-offer.location");
-			Assert.AreEqual (5, links.Count());
-			Assert.AreEqual ("new-york-fifth-avenue", FSharpOption<Fragments.Fragment>.Some(links.ElementAt(0)).BindAsDocumentLink ().Value.slug);
+			Assert.AreEqual (3, links.Count());
+			Assert.AreEqual ("paris-saint-lazare", FSharpOption<Fragments.Fragment>.Some(links.ElementAt(0)).BindAsDocumentLink ().Value.slug);
 			Assert.AreEqual ("tokyo-roppongi-hills", FSharpOption<Fragments.Fragment>.Some(links.ElementAt(1)).BindAsDocumentLink ().Value.slug);
 		}
 
@@ -98,10 +98,10 @@ namespace prismic.csharp.tests
 		{
 			var url = "https://lesbonneschoses.prismic.io/api";
 			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.ApiInfra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
-			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.id, ""UkL0gMuvzYUANCpu"")]]").SubmitableAsTask();
+			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.id, ""UlfoxUnM0wkXYXbX"")]]").SubmitableAsTask();
 
 			var document = form.Submit().Result.results.First();
-			var maybeText = document.GetStructuredText ("article.content");
+			var maybeText = document.GetStructuredText ("blog-post.body");
 			Assert.IsTrue (maybeText.Exists ());
 		}
 
