@@ -15,6 +15,12 @@ module ApiInfra =
         new : unit -> NoCache<'a>
         interface ICache<'a> 
 
+    /// Very simple cache with a capacity. Will trim entries that expire soon.
+    type SimpleCache<'a> = 
+        new : int -> SimpleCache<'a>
+        interface ICache<'a> 
+
+
     /// Provides a no logger 
     type Logger =
         new: unit -> Logger 
