@@ -15,3 +15,8 @@
 
 ### New in 1.0.3 (Released 2014/06/06)
 * Set exact version number of FSharpData
+
+### New in 1.0.4 (Released 2014/07/04)
+* Add a release Id on Ref
+* Add Linked Documents on Document
+* Add a simple cache
