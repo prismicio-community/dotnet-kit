@@ -22,8 +22,9 @@ module Api =
             match innerException with | Some(ex) -> ex | _ -> null)
     
 
-    type Ref = { refId:string; label:string; isMasterRef:bool; scheduledAt:System.DateTime option }
+    type Ref = { releaseId:string; refId:string; label:string; isMasterRef:bool; scheduledAt:System.DateTime option }
                        static member fromJson (json:JsonValue) = {
+                            releaseId = json?id.AsString();
                             refId = json?ref.AsString(); 
                             label = json?label.AsString(); 
                             isMasterRef = (asBooleanOption(json>?"isMasterRef")) <?- false; 

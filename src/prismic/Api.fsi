@@ -20,6 +20,7 @@ module Api =
 
 
     type Ref = {
+        releaseId : string;
         refId: string;
         label: string;
         isMasterRef: bool;
