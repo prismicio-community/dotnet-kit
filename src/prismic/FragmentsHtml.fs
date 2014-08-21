@@ -43,7 +43,7 @@ module FragmentsHtml =
                             let embedAsHtml (e:Embed) = 
                                 e.html |> Option.fold (fun s h -> 
                                             String.Format("""<div data-oembed="{0}" data-oembed-type="{1}" data-oembed-provider="{2}">{3}</div>""",
-                                                e.url, e.typ.ToLowerInvariant(), e.provider.ToLowerInvariant(), e.html)) String.Empty
+                                                e.url, e.typ.ToLowerInvariant(), e.provider.ToLowerInvariant(), h)) String.Empty
                             let textspanAsHtml (text:string) (spans:Span seq) = 
                                 let writeTag opening = function
                                                         | Span.Em(_, _) -> if opening then "<em>" else "</em>"
