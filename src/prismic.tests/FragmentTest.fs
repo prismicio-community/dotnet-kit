@@ -151,3 +151,18 @@ module FragmentTest =
                                 let linkresolver = Api.DocumentLinkResolver.For(fun l -> String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
                                 Assert.AreEqual(expected, Api.asHtml linkresolver g)
                             | _ -> Assert.Fail("GeoPoint not found")
+
+        [<Test>]
+        member x.``Should Access Embed``() =
+            let url = "https://test-public.prismic.io/api"
+            let api = await (apiGetNoCache (Option.None) url)
+            let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "Uy4VGQEAAPQzRDR9")]]""")
+            let document = await(form.Submit()).results |> List.head
+            let maybeEmbed = document.fragments |> getEmbed "test-link.embed"
+
+            match maybeEmbed with
+                            | Some(e) ->
+                                let expected = """<div data-oembed="https://gist.github.com/srenault/71b4f1e62783c158f8af" data-oembed-type="rich" data-oembed-provider="github"><script src="https://gist.github.com/srenault/71b4f1e62783c158f8af.js"></script></div>"""
+                                let linkresolver = Api.DocumentLinkResolver.For(fun l -> String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
+                                Assert.AreEqual(expected, Api.asHtml linkresolver e)
+                            | _ -> Assert.Fail("Embed not found")

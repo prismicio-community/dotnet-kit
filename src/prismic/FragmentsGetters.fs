@@ -118,6 +118,12 @@ module FragmentsGetters =
                                         | GeoPoint(_) -> Some(f)
                                         | _ -> None)
 
+    let getEmbed field fragmentMap =
+        get field fragmentMap
+            |> Option.bind (fun f -> match f with
+                                        | Embed(_) -> Some(f)
+                                        | _ -> None)
+
     let getText field fragmentMap =         
         let textFromBlock = function Block.Text(t) -> match t with
                                                             Text.Heading(t, _, _)
