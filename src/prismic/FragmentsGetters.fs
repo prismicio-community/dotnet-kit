@@ -7,38 +7,38 @@ module FragmentsGetters =
 
 
     let getTitle = function
-                        StructuredText(blocks) 
-                            -> blocks 
+                        StructuredText(blocks)
+                            -> blocks
                                 |> Seq.tryPick (function Block.Text(Text.Heading(_))&Block.Text(heading) -> Some(heading)
                                                                                         | _ -> None)
                         | _ -> None
 
     let getFirstImage = function
-                        StructuredText(blocks) 
-                            -> blocks 
+                        StructuredText(blocks)
+                            -> blocks
                                 |> Seq.tryPick (function Block.Image(v)&image -> Some(image)
                                                                                     | _ -> None)
                         | _ -> None
 
     let getFirstParagraph = function
-                        StructuredText(blocks) 
-                            -> blocks 
-                                |> Seq.tryPick (function Block.Text(Text.Paragraph(_))&Block.Text(paragraph) -> Some(paragraph) 
+                        StructuredText(blocks)
+                            -> blocks
+                                |> Seq.tryPick (function Block.Text(Text.Paragraph(_))&Block.Text(paragraph) -> Some(paragraph)
                                                                                                                  | _ -> None)
                         | _ -> None
 
     let getAllParagraphs = function
-                        StructuredText(blocks) 
-                            -> blocks 
+                        StructuredText(blocks)
+                            -> blocks
                                 |> Seq.collect (function Block.Text(Text.Paragraph(_))&Block.Text(paragraph) -> Seq.singleton (paragraph)
                                                                                           | _ -> Seq.empty)
                         | _ -> Seq.empty
 
 
-    let getAll field (fragmentMap:TupleList<string, Fragment>) = 
+    let getAll field (fragmentMap:TupleList<string, Fragment>) =
         let matchKey (a:string) =
             tryParseIndexedKey(a) |> Option.bind (fun k -> if k.Head = field then Some(k) else None)
-        fragmentMap |> TupleList.values (fun k _ -> matchKey(k) |> Option.isSome) 
+        fragmentMap |> TupleList.values (fun k _ -> matchKey(k) |> Option.isSome)
 
     let get field (fragmentMap: TupleList<string, Fragment>) =
         let mayBeField = fragmentMap |> TupleList.valueForKey field
@@ -108,53 +108,59 @@ module FragmentsGetters =
 
     let getStructuredText field fragmentMap = 
         get field fragmentMap 
-            |> Option.bind (fun f -> match f with   
-                                        | StructuredText(_) -> Some(f) 
+            |> Option.bind (fun f -> match f with
+                                        | StructuredText(_) -> Some(f)
+                                        | _ -> None)
+
+    let getGeoPoint field fragmentMap =
+        get field fragmentMap
+            |> Option.bind (fun f -> match f with
+                                        | GeoPoint(_) -> Some(f)
                                         | _ -> None)
 
     let getText field fragmentMap =         
         let textFromBlock = function Block.Text(t) -> match t with
-                                                            Text.Heading(t, _, _) 
-                                                            | Text.ListItem(t, _, _) 
-                                                            | Text.Paragraph(t, _) 
+                                                            Text.Heading(t, _, _)
+                                                            | Text.ListItem(t, _, _)
+                                                            | Text.Paragraph(t, _)
                                                             | Text.Preformatted(t, _) -> Some(t)
                                                   | _ -> None
-        let buildBlockText (blocks: Block seq) = 
+        let buildBlockText (blocks: Block seq) =
             blocks |> Seq.choose textFromBlock |> String.concat "\n"
         let filterNotEmpty = function "" -> None | t -> Some(t)
         let buildBlockTextOption b = filterNotEmpty (buildBlockText b)
             
-        get field fragmentMap 
-            |> Option.bind (fun f -> match f with   
-                                        | StructuredText(blocks) -> 
-                                            blocks |> buildBlockTextOption 
+        get field fragmentMap
+            |> Option.bind (fun f -> match f with
+                                        | StructuredText(blocks) ->
+                                            blocks |> buildBlockTextOption
                                         | Number(f) -> Some(f.ToString())
                                         | Color(c) -> Some(c.hex)
                                         | Text(t) -> filterNotEmpty t
                                         | Date(d) -> Some(d.ToString()) // format date
                                         | _ -> None)
-    let getColor field fragmentMap = 
-        get field fragmentMap 
-            |> Option.bind (fun f -> match f with   
-                                        | Color(_) -> Some(f) 
+    let getColor field fragmentMap =
+        get field fragmentMap
+            |> Option.bind (fun f -> match f with
+                                        | Color(_) -> Some(f)
                                         | _ -> None)
     
-    let getNumber field fragmentMap = 
+    let getNumber field fragmentMap =
         get field fragmentMap 
-            |> Option.bind (fun f -> match f with   
+            |> Option.bind (fun f -> match f with
                                         | Number(_) -> Some(f)
                                         | _ -> None)
 
 
     let getDate field fragmentMap = 
         get field fragmentMap 
-            |> Option.bind (fun f -> match f with   
-                                        | Date(_) -> Some(f) 
-                                        | _ -> None) 
+            |> Option.bind (fun f -> match f with
+                                        | Date(_) -> Some(f)
+                                        | _ -> None)
 
-    let getBoolean field fragmentMap = 
-        get field fragmentMap 
-            |> Option.bind (fun f -> match f with   
+    let getBoolean field fragmentMap =
+        get field fragmentMap
+            |> Option.bind (fun f -> match f with
                                         | Text(t) -> match t.ToLowerInvariant() with
                                                             "yes" -> Some(true)
                                                             | "true" -> Some(true)
@@ -162,9 +168,9 @@ module FragmentsGetters =
                                         | _ -> None)
             |> Option.isSome
 
-    let getGroup field fragmentMap = 
-        get field fragmentMap 
-            |> Option.bind (fun f -> match f with   
-                                        | Group(_) -> Some(f) 
+    let getGroup field fragmentMap =
+        get field fragmentMap
+            |> Option.bind (fun f -> match f with
+                                        | Group(_) -> Some(f)
                                         | _ -> None)
 

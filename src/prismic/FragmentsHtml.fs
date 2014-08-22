@@ -21,6 +21,7 @@ module FragmentsHtml =
                     | Date d -> String.Format("""<time>{0}</time>""", (d.ToString("yyyy-MM-dd"))) // Check date time format
                     | Number n -> String.Format("""<span class="number">{0}</span>""", n)
                     | Color c -> String.Format("""<span class="color">{0}</span>""", c)
+                    | GeoPoint g -> String.Format("""<div class="geopoint"><span class="latitude">{0}</span><span class="longitude">{1}</span></div>""", g.latitude, g.longitude)
                     | Embed (e) -> 
                                 e.html 
                                     |> Option.fold (fun _ h -> String.Format("""<div data-oembed="{0}" data-oembed-type="{1}" data-oembed-provider="{2}">{3}</div>""", 

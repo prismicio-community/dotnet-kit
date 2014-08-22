@@ -12,14 +12,14 @@ module FragmentTest =
     let apiGetNoCache = Api.get (ApiInfra.NoCache() :> ApiInfra.ICache<Api.Response>) (ApiInfra.Logger.NoLogger)
 
     [<TestFixture>]
-    type ``Query Document and Parse Fragments``() = 
+    type ``Query Document and Parse Fragments``() =
 
         [<Test>]
-        member x.``Should Access Group Field``() = 
+        member x.``Should Access Group Field``() =
             let url = "https://micro.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.type, "docchapter")]]""")
-            let document = await(form.Submit()).results |> List.head 
+            let document = await(form.Submit()).results |> List.head
             let maybeGroup = document.fragments |> getGroup "docchapter.docs"
             match maybeGroup with
                             | Some(Group(docs)) -> 
@@ -32,7 +32,7 @@ module FragmentTest =
 
 
         [<Test>]
-        member x.``Should Serialize Group To HTML``() = 
+        member x.``Should Serialize Group To HTML``() =
             let url = "https://micro.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.type, "docchapter")]]""")
@@ -51,7 +51,7 @@ module FragmentTest =
 
 
         [<Test>]
-        member x.``Should Serialize Another Group To HTML``() = 
+        member x.``Should Serialize Another Group To HTML``() =
             let url = "https://micro.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.type, "docchapter")]]""")
@@ -70,22 +70,22 @@ module FragmentTest =
 
 
         [<Test>]
-        member x.``Should Access Media Link``() = 
+        member x.``Should Access Media Link``() =
             let url = "https://test-public.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "Uyr9_wEAAKYARDMV")]]""")
-            let document = await(form.Submit()).results |> List.head 
+            let document = await(form.Submit()).results |> List.head
             let maybeLink = document.fragments |> getLink "test-link.related"
             match maybeLink with
                             | Some(Link(MediaLink(l))) -> Assert.AreEqual("baastad.pdf", l.filename)
                             | _ -> Assert.Fail("Media Link not found")
 
         [<Test>]
-        member x.``Should Access First Link In Multiple Document Link``() = 
+        member x.``Should Access First Link In Multiple Document Link``() =
             let url = "https://lesbonneschoses.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "UlfoxUnM0wkXYXba")]]""")
-            let document = await(form.Submit()).results |> List.head 
+            let document = await(form.Submit()).results |> List.head
             let maybeLink = document.fragments |> getLink "job-offer.location"
             match maybeLink with
                             | Some(Link(DocumentLink(l))) -> Assert.AreEqual("paris-saint-lazare", l.slug)
@@ -93,11 +93,11 @@ module FragmentTest =
 
 
         [<Test>]
-        member x.``Should Find All Links In Multiple Document Link``() = 
+        member x.``Should Find All Links In Multiple Document Link``() =
             let url = "https://lesbonneschoses.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "UlfoxUnM0wkXYXba")]]""")
-            let document = await(form.Submit()).results |> List.head 
+            let document = await(form.Submit()).results |> List.head
             let links = document.fragments |> getAll "job-offer.location"
             Assert.AreEqual(3, links |> Seq.length)
             let link0 = links |> Seq.nth 0
@@ -111,24 +111,24 @@ module FragmentTest =
 
 
         [<Test>]
-        member x.``Should Access Structured Text``() = 
+        member x.``Should Access Structured Text``() =
             let url = "https://lesbonneschoses.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "UlfoxUnM0wkXYXbX")]]""")
-            let document = await(form.Submit()).results |> List.head 
+            let document = await(form.Submit()).results |> List.head
             let maybeStructTxt = document.fragments |> getStructuredText "blog-post.body"
             Assert.IsTrue(maybeStructTxt.IsSome)
 
         [<Test>]
-        member x.``Should Access Image``() = 
+        member x.``Should Access Image``() =
             let url = "https://test-public.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "Uyr9sgEAAGVHNoFZ")]]""")
-            let document = await(form.Submit()).results |> List.head 
+            let document = await(form.Submit()).results |> List.head
             let maybeImg = document.fragments |> getImageView "article.illustration" "icon"
 
             match maybeImg with
-                            | Some(_) -> 
+                            | Some(_) ->
                                 let expectpattern = """<img alt="some alt text" src="{0}" width="100" height="100" />"""
                                 let url = "https://prismic-io.s3.amazonaws.com/test-public/9f5f4e8a5d95c7259108e9cfdde953b5e60dcbb6.jpg"
                                 let expect = String.Format(expectpattern, url)
@@ -137,3 +137,17 @@ module FragmentTest =
                             | _ -> Assert.Fail("Document Link not found")
 
 
+        [<Test>]
+        member x.``Should Access GeoPoint``() =
+            let url = "https://test-public.prismic.io/api"
+            let api = await (apiGetNoCache (Option.None) url)
+            let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "U9pZMDQAADEAYj_n")]]""")
+            let document = await(form.Submit()).results |> List.head
+            let maybeGeoPoint = document.fragments |> getGeoPoint "product.location"
+
+            match maybeGeoPoint with
+                            | Some(g) ->
+                                let expected = """<div class="geopoint"><span class="latitude">48.87687670000001</span><span class="longitude">2.3338801999999825</span></div>"""
+                                let linkresolver = Api.DocumentLinkResolver.For(fun l -> String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
+                                Assert.AreEqual(expected, Api.asHtml linkresolver g)
+                            | _ -> Assert.Fail("GeoPoint not found")

@@ -31,6 +31,7 @@ module internal Shortcuts =
     let asDateTimeFromUnixMs (jsonvalue:JsonValue) = fromUnixTimeMs (jsonvalue.AsInteger64())
     let asBoolean (jsonvalue:JsonValue) = jsonvalue.AsBoolean()
     let asInteger (jsonvalue:JsonValue) = jsonvalue.AsInteger()
+    let asDecimal (jsonvalue:JsonValue) = jsonvalue.AsDecimal()
     let asSomethingOption f (jsonvalue:JsonValue option) = match jsonvalue with | Some(JsonValue.Null) -> None | Some(j) -> Some(f(j)) | None -> None
     let asDateTimeOption = asSomethingOption asDateTime
     let asDateTimeFromUnixMsOption = asSomethingOption asDateTimeFromUnixMs

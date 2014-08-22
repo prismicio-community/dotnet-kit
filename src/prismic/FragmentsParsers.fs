@@ -47,6 +47,11 @@ module internal FragmentsParsers =
             oembedJson = oembed 
         }
     let parseFragmentEmbed (f:JsonValue) = Fragment.Embed(parseEmbed(f))
+    let parseGeoPoint (f:JsonValue) =
+        GeoPoint({
+                 latitude = asDecimal(f?latitude);
+                 longitude = asDecimal(f?longitude)
+        })
     let parseWebLink (f:JsonValue) = 
         WebLink({
                 url = f?url.AsString();
@@ -145,6 +150,7 @@ module internal FragmentsParsers =
                             | "Text" -> Some(parseText) 
                             | "Select" -> Some(parseSelect) 
                             | "Embed" -> Some(parseFragmentEmbed)
+                            | "GeoPoint" -> Some(parseGeoPoint)
                             | "Link.web" -> Some(parseFragmentWebLink)
                             | "Link.document" -> Some(parseFragmentDocumentLink)
                             | "Link.file" -> Some(parseFragmentMediaLink)
