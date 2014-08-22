@@ -20,3 +20,7 @@
 * Add a release Id on Ref
 * Add Linked Documents on Document
 * Add a simple cache
+
+### New in 1.0.5 (Released 2014/08/22)
+* Add a Embed getter
+* Add GeoPoint support
