@@ -314,6 +314,20 @@ namespace prismic.extensions
 			return OptionModule.Map(map, imageOption);
 		}
 
+		private static FSharpOption<Fragments.Fragment.Embed> GetEmbed(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
+		{
+			var embedOption = FragmentsGetters.getEmbed (field, fragmentsMap);
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Embed>(o => (Fragments.Fragment.Embed)o);
+			return OptionModule.Map(map, embedOption);
+		}
+
+		private static FSharpOption<Fragments.Fragment.GeoPoint> GetGeoPoint(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
+		{
+			var geopointOption = FragmentsGetters.getGeoPoint (field, fragmentsMap);
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.GeoPoint>(o => (Fragments.Fragment.GeoPoint)o);
+			return OptionModule.Map(map, geopointOption);
+		}
+
 		private static IEnumerable<Fragments.Fragment.Image> GetAllImages(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
 		{
 			var images = FragmentsGetters.getAllImages (field, fragmentsMap);
