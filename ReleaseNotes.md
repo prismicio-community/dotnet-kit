@@ -24,3 +24,6 @@
 ### New in 1.0.5 (Released 2014/08/22)
 * Add a Embed getter
 * Add GeoPoint support
+
+### New in 1.0.6 (Released 2014/08/25)
+* Add C# extension for GeoPoint & Embed fragment.
