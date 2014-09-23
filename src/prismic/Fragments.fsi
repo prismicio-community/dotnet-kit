@@ -45,6 +45,7 @@ module Fragments =
       | Link of Link
       | Text of string
       | Date of System.DateTime
+      | Timestamp of System.DateTime
       | Number of float
       | Color of Color
       | Embed of Embed

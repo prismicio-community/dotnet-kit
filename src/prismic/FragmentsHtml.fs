@@ -18,7 +18,8 @@ module FragmentsHtml =
                                 | MediaLink (l) -> String.Format("""<a href="{0}">{1}</a>""", l.url, l.filename)
                                 | DocumentLink (l) -> String.Format("""<a href="{0}">{1}</a>""", linkResolver(l), l.slug)
                     | Text t -> String.Format("""<span class="text">{0}</span>""", htmlEncode t)
-                    | Date d -> String.Format("""<time>{0}</time>""", (d.ToString("yyyy-MM-dd"))) // Check date time format
+                    | Date d -> String.Format("""<time>{0}</time>""", (d.ToUniversalTime().ToString("yyyy-MM-dd"))) // Check date time format
+                    | Timestamp d -> String.Format("""<time>{0}</time>""", (d.ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss")))
                     | Number n -> String.Format("""<span class="number">{0}</span>""", n)
                     | Color c -> String.Format("""<span class="color">{0}</span>""", c)
                     | GeoPoint g -> String.Format("""<div class="geopoint"><span class="latitude">{0}</span><span class="longitude">{1}</span></div>""", g.latitude, g.longitude)

@@ -164,6 +164,12 @@ module FragmentsGetters =
                                         | Date(_) -> Some(f)
                                         | _ -> None)
 
+    let getTimestamp field fragmentMap = 
+        get field fragmentMap 
+            |> Option.bind (fun f -> match f with
+                                        | Timestamp(_) -> Some(f)
+                                        | _ -> None)
+
     let getBoolean field fragmentMap =
         get field fragmentMap
             |> Option.bind (fun f -> match f with

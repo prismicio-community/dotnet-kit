@@ -41,6 +41,3 @@ module TupleList =
     let set (k, v) (list:TupleList<'a, 'b>) = 
         (k, v) :: (list.Inner |> List.filter(fun (a, b) -> a <> k)) |> toTupleList
 
-
-
-

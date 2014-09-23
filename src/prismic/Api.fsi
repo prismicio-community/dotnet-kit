@@ -17,8 +17,6 @@ module Api =
         new : message:string * ?innerException:exn -> ParsingException
 
 
-
-
     type Ref = {
         releaseId : string;
         refId: string;
@@ -66,15 +64,16 @@ module Api =
     with
         member isTagged : (seq<string> -> bool)
         member slug : string
+        static member fromJson : JsonValue -> Document
     end
 
-    type Response = { 
-            results: List<Document>; 
-            page: int; resultsPerPage:int; 
-            resultsSize:int; 
-            totalResultsSize:int; 
-            totalPages:int; 
-            nextPage: string option; 
+    type Response = {
+            results: List<Document>;
+            page: int; resultsPerPage:int;
+            resultsSize:int;
+            totalResultsSize:int;
+            totalPages:int;
+            nextPage: string option;
             prevPage: string option }
 
     type SearchForm =
@@ -97,7 +96,7 @@ module Api =
         member OauthInitiateEndpoint : string
         member OauthTokenEndpoint : string
         member Refs : Map<string, Ref>
-    
+
     /// <summary>Builds URL specific to an application, based on a generic prismic.io document link.</summary>
     type DocumentLinkResolver =
         new : f:(Fragments.DocumentLink -> string) -> DocumentLinkResolver

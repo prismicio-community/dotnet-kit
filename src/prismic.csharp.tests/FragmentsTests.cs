@@ -50,7 +50,6 @@ namespace prismic.csharp.tests
 <section data-field=""desc""><p>Just testing another field in a group section.</p></section>
 <section data-field=""linktodoc""><a href=""http://localhost/doc/UrDmKgEAALwMyrXA"">using-meta-micro</a></section>", html.Value);
 		}
-			
 
 		[Test ()]
 		public void ShouldAccessMediaLink()
@@ -124,7 +123,6 @@ namespace prismic.csharp.tests
 
 			Assert.AreEqual(expect, html);
 		}
-
 
 	}
 }

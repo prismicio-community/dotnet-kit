@@ -38,6 +38,7 @@ module Fragments =
     and Fragment =  | Link of Link
                     | Text of string
                     | Date of DateTime
+                    | Timestamp of DateTime
                     | Number of float // or double ?
                     | Color of Color
                     | Embed of Embed

@@ -27,3 +27,6 @@
 
 ### New in 1.0.6 (Released 2014/08/25)
 * Add C# extension for GeoPoint & Embed fragment.
+
+### New in 1.0.7 (Released 2014/09/23)
+* Add support for Timestamp fragments.

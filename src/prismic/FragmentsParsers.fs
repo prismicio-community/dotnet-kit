@@ -26,6 +26,9 @@ module internal FragmentsParsers =
     let parseDate (f:JsonValue) = 
         Date(
             f.AsDateTime()) // err : Invalid date value 
+    let parseTimestamp (f:JsonValue) = 
+        Timestamp(
+            f.AsDateTime()) // err : Invalid date value 
     let parseUnixMsDate (f:JsonValue) = 
         Date(
             asDateTimeFromUnixMs f) // err : Invalid date value 
@@ -147,7 +150,8 @@ module internal FragmentsParsers =
                             | "Color" -> Some(parseColor)
                             | "Number" -> Some(parseNumber) 
                             | "Date" -> Some(parseDate) 
-                            | "Text" -> Some(parseText) 
+                            | "Timestamp" -> Some(parseTimestamp) 
+                            | "Text" -> Some(parseText)
                             | "Select" -> Some(parseSelect) 
                             | "Embed" -> Some(parseFragmentEmbed)
                             | "GeoPoint" -> Some(parseGeoPoint)

@@ -7,7 +7,7 @@ open Shortcuts
 open FragmentsParsers
 
 module Api =
-        
+
     type OAuthUrl = string
 
     exception AuthorizationNeeded of string * OAuthUrl
@@ -99,7 +99,7 @@ module Api =
                                 fragments = fragments;
                                 linkedDocuments = asArrayOrEmpty json "linked_documents" |> Array.map LinkedDocument.fromJson |> List.ofArray; 
                             }
-                                                                
+
     and Response = { results: List<Document>; page: int; resultsPerPage:int; resultsSize:int; totalResultsSize:int; totalPages:int; nextPage: string option; prevPage: string option; }
                         static member fromJson (json:JsonValue) = { 
                                 results = json?results.AsArray() |> Array.map Document.fromJson |> List.ofArray; 

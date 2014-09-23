@@ -1,6 +1,7 @@
 ﻿namespace prismic.tests
 open prismic
 open System
+open FSharp.Data
 open NUnit.Framework
 open Fragments
 open FragmentsGetters
@@ -22,7 +23,7 @@ module FragmentTest =
             let document = await(form.Submit()).results |> List.head
             let maybeGroup = document.fragments |> getGroup "docchapter.docs"
             match maybeGroup with
-                            | Some(Group(docs)) -> 
+                            | Some(Group(docs)) ->
                                 match docs |> Seq.tryPick Some with
                                     | Some(doc) -> match doc.fragments |> getLink "linktodoc" with
                                                             | Some(Link(DocumentLink(l))) -> Assert.IsNotNull(l.id)
@@ -36,12 +37,12 @@ module FragmentTest =
             let url = "https://micro.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.type, "docchapter")]]""")
-            let documentf = await(form.Submit()).results 
+            let documentf = await(form.Submit()).results
             let document = List.nth documentf  1
             let maybeGroup = document.fragments |> getGroup "docchapter.docs"
             match maybeGroup with
-                            | Some(g) -> 
-                                let linkresolver = Api.DocumentLinkResolver.For(fun l -> 
+                            | Some(g) ->
+                                let linkresolver = Api.DocumentLinkResolver.For(fun l ->
                                     String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
                                 let html = Api.asHtml linkresolver g
                                 Assert.AreEqual("""<section data-field="linktodoc"><a href="http://localhost/doc/UrDejAEAAFwMyrW9">installing-meta-micro</a></section>
@@ -55,12 +56,12 @@ module FragmentTest =
             let url = "https://micro.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.type, "docchapter")]]""")
-            let documentf = await(form.Submit()).results 
+            let documentf = await(form.Submit()).results
             let document = List.nth documentf  0
             let maybeGroup = document.fragments |> getGroup "docchapter.docs"
             match maybeGroup with
-                            | Some(g) -> 
-                                let linkresolver = Api.DocumentLinkResolver.For(fun l -> 
+                            | Some(g) ->
+                                let linkresolver = Api.DocumentLinkResolver.For(fun l ->
                                     String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
                                 let html = Api.asHtml linkresolver g
                                 Assert.AreEqual("""<section data-field="linktodoc"><a href="http://localhost/doc/UrDofwEAALAdpbNH">with-jquery</a></section>
@@ -165,4 +166,21 @@ module FragmentTest =
                                 let expected = """<div data-oembed="https://gist.github.com/srenault/71b4f1e62783c158f8af" data-oembed-type="rich" data-oembed-provider="github"><script src="https://gist.github.com/srenault/71b4f1e62783c158f8af.js"></script></div>"""
                                 let linkresolver = Api.DocumentLinkResolver.For(fun l -> String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
                                 Assert.AreEqual(expected, Api.asHtml linkresolver e)
-                            | _ -> Assert.Fail("Embed not found")
+                            | _ -> Assert.Fail("Ebed not found")
+
+        [<Test>]
+        member x.``Shoud Parse Timestamp``() =
+            let json = JsonValue.Parse "{\"id\": \"UlfoxUnM0wkXYXbm\",\
+                \"type\": \"blog-post\",\
+                \"href\": \"https://example.com\",\
+                \"slugs\": [\"tips-to-dress-a-pastry\"],\
+                \"tags\": [],\
+                \"data\": { \"blog-post\": { \"when\": { \"type\": \"Timestamp\", \"value\": \"2014-06-18T15:30:00+0000\" } } } }"
+            let document = prismic.Api.Document.fromJson (json)
+            let tstamp = document.fragments |> getTimestamp "blog-post.when"
+            let linkresolver = Api.DocumentLinkResolver.For(fun l -> String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
+
+            match tstamp with
+                    | Some(ts) ->
+                        Assert.AreEqual("<time>2014-06-18 15:30:00</time>", Api.asHtml linkresolver ts)
+                    | _ -> Assert.Fail("Timestamp not found")

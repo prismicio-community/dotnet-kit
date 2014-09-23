@@ -204,6 +204,11 @@ namespace prismic.extensions
 			return document.fragments.GetDate (field); 
 		}
 
+		public static FSharpOption<Fragments.Fragment.Timestamp> GetTimestamp(this Fragments.GroupDoc document, string field)
+		{
+			return document.fragments.GetTimestamp (field); 
+		}
+
 
 		public static bool GetBoolean(this Fragments.GroupDoc document, string field)
 		{
@@ -275,6 +280,11 @@ namespace prismic.extensions
 		public static FSharpOption<Fragments.Fragment.Date> GetDate(this prismic.Api.Document document, string field)
 		{
 			return document.fragments.GetDate (field); 
+		}
+
+		public static FSharpOption<Fragments.Fragment.Timestamp> GetTimestamp(this prismic.Api.Document document, string field)
+		{
+			return document.fragments.GetTimestamp (field); 
 		}
 
 		public static bool GetBoolean(this prismic.Api.Document document, string field)
@@ -376,6 +386,13 @@ namespace prismic.extensions
 		{
 			var dateOption = FragmentsGetters.getDate (field, fragmentsMap);
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Date>(o => (Fragments.Fragment.Date)o);
+			return OptionModule.Map(map, dateOption);
+		}
+
+		private static FSharpOption<Fragments.Fragment.Timestamp> GetTimestamp(this prismic.TupleList<string, Fragments.Fragment> fragmentsMap, string field)
+		{
+			var dateOption = FragmentsGetters.getTimestamp (field, fragmentsMap);
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, Fragments.Fragment.Timestamp>(o => (Fragments.Fragment.Timestamp)o);
 			return OptionModule.Map(map, dateOption);
 		}
 
