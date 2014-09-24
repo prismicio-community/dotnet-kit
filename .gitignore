@@ -4,9 +4,9 @@
 [Dd]ebug*/
 [Rr]elease*/
 
-src/packages/
-src/nuget/packages/
-src/nuget/packaging/
+packages/
+nuget/packages/
+nuget/packaging/
 
 #MonoDevelop
 *.pidb
