@@ -1,5 +1,7 @@
 ## .NET development kit for prismic.io
 
+[![Build Status](https://api.travis-ci.org/prismicio/dotnet-kit.png)](https://travis-ci.org/prismicio/dotnet-kit)
+
 ### Getting started
 
 #### Install the kit for your project
