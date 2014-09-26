@@ -7,10 +7,53 @@ open Fragments
 
 module internal FragmentsParsers =
 
-    let parseImageView (f:JsonValue) = {    url=  f?url.AsString();
-                                            width= f?dimensions?width.AsInteger();
-                                            height= f?dimensions?height.AsInteger();
-                                            alt= asStringOption(f>?"alt") }
+    let parseWebLink (f:JsonValue) =
+        WebLink({
+                url = f?url.AsString();
+                contentType = Option.None
+        })
+    let parseFragmentWebLink (f:JsonValue) = Fragment.Link(parseWebLink(f))
+    let parseDocumentLink (f:JsonValue) =
+        let doc = f?document in
+        let isBroken = (asBooleanOption(f>?"isBroken")) <?- false
+        DocumentLink({
+                        id = doc?id.AsString();
+                        typ = doc.GetProperty("type").AsString();
+                        tags = asArrayOrEmpty doc "tags" |> Array.map (fun j -> j.AsString()) |> Seq.ofArray;
+                        slug = doc?slug.AsString();
+                        isBroken = isBroken})
+    let parseFragmentDocumentLink (f:JsonValue) = Fragment.Link(parseDocumentLink(f))
+    let parseMediaLink (f:JsonValue) =
+        let file = f?file in
+        MediaLink({
+                    url = file?url.AsString();
+                    kind = file?kind.AsString();
+                    size = file?size.AsInteger64();
+                    filename = file?name.AsString()})
+    let parseFragmentMediaLink (f:JsonValue) = Fragment.Link(parseMediaLink(f))
+    let parseImageLink (f:JsonValue) =
+        let image = f?image in
+        ImageLink({
+                    name = image?name.AsString();
+                    url = image?url.AsString();
+                    size = image?size.AsInteger64();
+                    height = image?height.AsInteger64();
+                    width = image?width.AsInteger64()})
+    let parseFragmentImageLink (f:JsonValue) = Fragment.Link(parseImageLink(f))
+    let parseImageView (f:JsonValue) = {
+        url=  f?url.AsString();
+        width= f?dimensions?width.AsInteger();
+        height= f?dimensions?height.AsInteger();
+        alt= asStringOption(f>?"alt");
+        linkTo= match f.TryGetProperty("linkTo") with
+                | Some(json) -> match json.TryGetProperty("type") |> Option.map (fun t -> t.AsString()) with
+                                | Some("Link.web") -> Some(parseWebLink json)
+                                | Some("Link.document") -> Some(parseDocumentLink json)
+                                | Some("Link.file") -> Some(parseMediaLink json)
+                                | Some("Link.image") -> Some(parseImageLink json)
+                                | _ -> None
+                | _ -> None
+    }
     let parseImage (f:JsonValue) =
                         let main = parseImageView f?main
                         let views = asTupleListFromProperties parseImageView f?views
@@ -55,38 +98,7 @@ module internal FragmentsParsers =
                  latitude = asDecimal(f?latitude);
                  longitude = asDecimal(f?longitude)
         })
-    let parseWebLink (f:JsonValue) =
-        WebLink({
-                url = f?url.AsString();
-                contentType = Option.None
-        })
-    let parseFragmentWebLink (f:JsonValue) = Fragment.Link(parseWebLink(f))
-    let parseDocumentLink (f:JsonValue) =
-        let doc = f?document in
-        let isBroken = (asBooleanOption(f>?"isBroken")) <?- false
-        DocumentLink({
-                        id = doc?id.AsString();
-                        typ = doc.GetProperty("type").AsString();
-                        tags = asArrayOrEmpty doc "tags" |> Array.map (fun j -> j.AsString()) |> Seq.ofArray;
-                        slug = doc?slug.AsString();
-                        isBroken = isBroken})
-    let parseFragmentDocumentLink (f:JsonValue) = Fragment.Link(parseDocumentLink(f))
-    let parseMediaLink (f:JsonValue) =
-        let file = f?file in
-        MediaLink({
-                    url = file?url.AsString();
-                    kind = file?kind.AsString();
-                    size = file?size.AsInteger64();
-                    filename = file?name.AsString()})
-    let parseImageLink (f:JsonValue) =
-        let image = f?image in
-        ImageLink({
-                    name = image?name.AsString();
-                    url = image?url.AsString();
-                    size = image?size.AsInteger64();
-                    height = image?height.AsInteger64();
-                    width = image?width.AsInteger64()})
-    let parseFragmentMediaLink (f:JsonValue) = Fragment.Link(parseMediaLink(f))
+
     let parseStructuredText (f:JsonValue) =
         let parseSpan (f:JsonValue) =
             let type' = f.GetProperty("type").AsString()
@@ -168,6 +180,7 @@ module internal FragmentsParsers =
                             | "Link.web" -> Some(parseFragmentWebLink)
                             | "Link.document" -> Some(parseFragmentDocumentLink)
                             | "Link.file" -> Some(parseFragmentMediaLink)
+                            | "Link.image" -> Some(parseFragmentImageLink)
                             | "StructuredText" -> Some(parseStructuredText)
                             | "Group" -> Some(parseGroup)
                             | _ -> None

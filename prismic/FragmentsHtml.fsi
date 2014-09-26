@@ -6,4 +6,4 @@ module FragmentsHtml =
 
     val asHtml : linkResolver:(Fragments.DocumentLink->string) -> fragment:Fragments.Fragment -> string
 
-    val imageViewAsHtml : imageView:Fragments.ImageView -> string
+    val imageViewAsHtml : linkResolver:(Fragments.DocumentLink->string) -> imageView:Fragments.ImageView -> string

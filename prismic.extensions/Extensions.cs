@@ -542,9 +542,10 @@ namespace prismic.extensions
 		/// </summary>
 		/// <returns>The html.</returns>
 		/// <param name="imageView">Image view.</param>
-		public static FSharpOption<string> BindAsHtml(this FSharpOption<Fragments.ImageView> imageView)
+		public static FSharpOption<string> BindAsHtml(this FSharpOption<Fragments.ImageView> imageView, prismic.Api.DocumentLinkResolver linkResolver)
 		{
-			var map = CSharpAdapters.CreateFunc<Fragments.ImageView, string> (i => FragmentsHtml.imageViewAsHtml (i));
+			var applyResolver = CSharpAdapters.CreateFunc<Fragments.DocumentLink, string> (l => linkResolver.Apply (l));
+			var map = CSharpAdapters.CreateFunc<Fragments.ImageView, string> (i => FragmentsHtml.imageViewAsHtml (applyResolver, i));
 			return OptionModule.Map(map, imageView);
 		}
 

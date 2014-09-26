@@ -9,8 +9,15 @@ open Shortcuts
 module FragmentsHtml =
 
     type GroupTags = GroupTags of (string option * Block list)
-    let imageViewAsHtml (view:ImageView) =
-                    String.Format("""<img alt="{0}" src="{1}" width="{2}" height="{3}" />""", (defaultArg (view.alt) ""), view.url, view.width, view.height)
+
+    let imageViewAsHtml (linkResolver:DocumentLink -> string) (view:ImageView) =
+        let imgTag = String.Format("""<img alt="{0}" src="{1}" width="{2}" height="{3}" />""", (defaultArg (view.alt) ""), view.url, view.width, view.height)
+        match view.linkTo with
+            | Some (DocumentLink(l)) -> String.Format("""<a href="{0}">{1}</a>""", linkResolver(l), imgTag)
+            | Some (WebLink(l)) -> String.Format("""<a href="{0}">{1}</a>""", l.url, imgTag)
+            | Some (MediaLink(l)) -> String.Format("""<a href="{0}">{1}</a>""", l.url, imgTag)
+            | Some (ImageLink(l)) -> String.Format("""<a href="{0}">{1}</a>""", l.url, imgTag)
+            | _ -> imgTag
 
     let rec asHtml (linkResolver:DocumentLink -> string) = function
                     | Link l -> match l with
@@ -29,7 +36,7 @@ module FragmentsHtml =
                                     |> Option.fold (fun _ h -> String.Format("""<div data-oembed="{0}" data-oembed-type="{1}" data-oembed-provider="{2}">{3}</div>""",
                                                                                     e.url, e.typ.ToLowerInvariant(), e.provider.ToLowerInvariant(), h)
                                                    ) String.Empty
-                    | Image (i, m) -> imageViewAsHtml i
+                    | Image (i, m) -> imageViewAsHtml linkResolver i
                     | Group g ->    let getHtml field fragmentMap =
                                         get field fragmentMap
                                             |> Option.bind (fun f ->
@@ -106,7 +113,7 @@ module FragmentsHtml =
                                     | Block.Text(Text.ListItem(text, spans, _)) ->
                                         String.Format("""<li>{0}</li>""", textspanAsHtml text spans)
                                     | Block.Image(view) ->
-                                        String.Format("""<p>{0}</p>""", imageViewAsHtml view)
+                                        String.Format("""<p>{0}</p>""", imageViewAsHtml linkResolver view)
                                     | Block.Embed(embed) -> embedAsHtml embed
 
                             t   |> Seq.toList |> List.fold (fun s b ->

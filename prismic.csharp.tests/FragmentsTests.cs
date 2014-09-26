@@ -21,7 +21,7 @@ namespace prismic.csharp.tests
 			var maybeGroup = document.GetGroup ("docchapter.docs");
 			Assert.IsTrue (maybeGroup.Exists(), "group was not found");
 
-			var maybeFirstDoc = maybeGroup.Value.Item.FirstOrDefault (); 
+			var maybeFirstDoc = maybeGroup.Value.Item.FirstOrDefault ();
 			Assert.IsNotNull (maybeFirstDoc, "doc was not found");
 
 			var maybeLink = maybeFirstDoc.GetLink ("linktodoc");
@@ -40,7 +40,7 @@ namespace prismic.csharp.tests
 
 			Assert.IsTrue (maybeGroup.Exists(), "group was not found");
 
-			var resolver = 
+			var resolver =
 				prismic.extensions.DocumentLinkResolver.For (l => String.Format ("http://localhost/{0}/{1}", l.typ, l.id));
 
 			var html = maybeGroup.BindAsHtml(resolver);
@@ -112,11 +112,12 @@ namespace prismic.csharp.tests
 			Api.Api api = (prismic.extensions.Api.Get(url, new prismic.ApiInfra.NoCache<prismic.Api.Response>(), (l, m) => {})).Result;
 			var form = api.Forms["everything"].Ref(api.Master).Query (@"[[:d = at(document.id, ""Uyr9sgEAAGVHNoFZ"")]]").SubmitableAsTask();
 
+			var resolver = prismic.extensions.DocumentLinkResolver.For (l => String.Format ("http://localhost/{0}/{1}", l.typ, l.id));
 			var document = form.Submit().Result.results.First();
 			var maybeImgView = document.GetImageView ("article.illustration", "icon");
 			Assert.IsTrue (maybeImgView.Exists ());
 
-			var html = maybeImgView.BindAsHtml().Value;
+			var html = maybeImgView.BindAsHtml(resolver).Value;
 
 			var someurl = "https://prismic-io.s3.amazonaws.com/test-public/9f5f4e8a5d95c7259108e9cfdde953b5e60dcbb6.jpg";
 			var expect = String.Format (@"<img alt=""some alt text"" src=""{0}"" width=""100"" height=""100"" />", someurl);
@@ -126,4 +127,3 @@ namespace prismic.csharp.tests
 
 	}
 }
-

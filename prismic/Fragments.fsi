@@ -5,7 +5,7 @@ open FSharp.Data
 /// Signature file for the Fragment module
 module Fragments =
 
-    type ImageView = {url: string; width: int; height: int; alt: string option}
+    type ImageView = {url: string; width: int; height: int; alt: string option; linkTo: Link option }
                         with member ImageRatio : int end
     and DocumentLink =
       { id: string;

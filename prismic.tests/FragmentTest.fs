@@ -122,6 +122,7 @@ module FragmentTest =
 
         [<Test>]
         member x.``Should Access Image``() =
+            let linkresolver = fun (l: DocumentLink) -> String.Format("""http://localhost/{0}/{1}""", l.typ, l.id)
             let url = "https://test-public.prismic.io/api"
             let api = await (apiGetNoCache (Option.None) url)
             let form = api.Forms.["everything"].Ref(api.Master).Query("""[[:d = at(document.id, "Uyr9sgEAAGVHNoFZ")]]""")
@@ -133,7 +134,7 @@ module FragmentTest =
                                 let expectpattern = """<img alt="some alt text" src="{0}" width="100" height="100" />"""
                                 let url = "https://prismic-io.s3.amazonaws.com/test-public/9f5f4e8a5d95c7259108e9cfdde953b5e60dcbb6.jpg"
                                 let expect = String.Format(expectpattern, url)
-                                let image = imageViewAsHtml maybeImg.Value
+                                let image = imageViewAsHtml linkresolver maybeImg.Value
                                 Assert.AreEqual(expect, image)
                             | _ -> Assert.Fail("Document Link not found")
 
