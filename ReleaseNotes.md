@@ -30,3 +30,9 @@
 
 ### New in 1.0.7 (Released 2014/09/23)
 * Add support for Timestamp fragments.
+
+### New in 1.0.8 (Release 2014/09/26)
+* Add support for Links in images
+* Add support for span and group labels
+
+
