@@ -11,7 +11,7 @@ before_install:
  - sudo installer -pkg "MonoFramework-MDK-${MONO_VERSION}.macos10.xamarin.x86.pkg" -target /
 
 script:
- - xbuild 
+ - cd src && xbuild 
  - .ci/nunit.sh src/prismic.tests/bin/Debug/prismic.tests.dll
  - .ci/nunit.sh src/prismic.csharp.tests/bin/Debug/prismic.csharp.tests.dll
 
