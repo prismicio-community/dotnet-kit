@@ -23,12 +23,12 @@ module Fragments =
                 | Strong of (int * int)
                 | Hyperlink of (int * int * Link)
                 | Label of (int * int * string) // start, end, label
-    and Embed = {typ:string; provider:string; url:string; width:int option; height:int option; html:string option; oembedJson:JsonValue}
+    and Embed = {typ:string; provider:string; url:string; width:int option; height:int option; html:string option; oembedJson:JsonValue; label: string option}
     and GeoPoint = {latitude: decimal; longitude: decimal}
-    and Text = Heading of (string * Span seq * int) // (text, spans, level)
-                | Paragraph of (string * Span seq) // (text, spans)
-                | Preformatted of (string * Span seq) // (text, spans)
-                | ListItem  of (string * Span seq * bool)  // (text, spans, ordered)
+    and Text = Heading of (string * Span seq * int * string option) // (text, spans, level, label)
+                | Paragraph of (string * Span seq * string option) // (text, spans, label)
+                | Preformatted of (string * Span seq * string option) // (text, spans, label)
+                | ListItem  of (string * Span seq * bool * string option)  // (text, spans, ordered, label)
     and Block = Text of Text
                 | Image of ImageView
                 | Embed of Embed

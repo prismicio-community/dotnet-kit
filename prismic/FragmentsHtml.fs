@@ -103,29 +103,33 @@ module FragmentsHtml =
                                         | _ -> String.Format("{0}{1}", html |> toList |> String.Concat, writeHtml endings List.Empty)
                                 let inText = text.ToCharArray() |> Array.mapi (fun i t -> (t, i)) |> Array.toList
                                 step inText (spans |> Seq.sortBy spanStart |> Seq.toList) List.Empty (empty)
+                            let classCode (label: string option) =
+                                match label with
+                                    | Some(l) -> String.Format(" class=\"{0}\"", l)
+                                    | _ -> ""
                             let blockAsHtml = function
-                                    | Block.Text(Text.Heading(text, spans, level)) ->
-                                        String.Format("""<h{0}>{1}</h{0}>""", level, textspanAsHtml text spans)
-                                    | Block.Text(Text.Paragraph(text, spans)) ->
-                                        String.Format("""<p>{0}</p>""", textspanAsHtml text spans)
-                                    | Block.Text(Text.Preformatted(text, spans)) ->
-                                        String.Format("""<pre>{0}</pre>""", textspanAsHtml text spans)
-                                    | Block.Text(Text.ListItem(text, spans, _)) ->
-                                        String.Format("""<li>{0}</li>""", textspanAsHtml text spans)
+                                    | Block.Text(Text.Heading(text, spans, level, label)) ->
+                                        String.Format("""<h{0}{1}>{2}</h{0}>""", level, classCode label, textspanAsHtml text spans)
+                                    | Block.Text(Text.Paragraph(text, spans, label)) ->
+                                        String.Format("""<p{0}>{1}</p>""", classCode label, textspanAsHtml text spans)
+                                    | Block.Text(Text.Preformatted(text, spans, label)) ->
+                                        String.Format("""<pre{0}>{1}</pre>""", classCode label, textspanAsHtml text spans)
+                                    | Block.Text(Text.ListItem(text, spans, _, label)) ->
+                                        String.Format("""<li{0}>{1}</li>""", classCode label, textspanAsHtml text spans)
                                     | Block.Image(view) ->
-                                        String.Format("""<p>{0}</p>""", imageViewAsHtml linkResolver view)
+                                        String.Format("""<p class="block-img">{0}</p>""", imageViewAsHtml linkResolver view)
                                     | Block.Embed(embed) -> embedAsHtml embed
 
                             t   |> Seq.toList |> List.fold (fun s b ->
                                     match (s, b) with
                                         | (GroupTags(Some("ul"), _) :: _ & GroupTags(ul, blocks) :: tail & group :: _,
-                                            Block.Text(Text.ListItem(_, _, false))&block) ->  GroupTags(ul, blocks @ [block]) :: tail
+                                            Block.Text(Text.ListItem(_, _, false, _))&block) ->  GroupTags(ul, blocks @ [block]) :: tail
                                         | (GroupTags(Some("ol"), _) :: _ & GroupTags(ul, blocks) :: tail & group :: _,
-                                            Block.Text(Text.ListItem(_, _, true))&block) -> GroupTags(ul, blocks @ [block]) :: tail
+                                            Block.Text(Text.ListItem(_, _, true, _))&block) -> GroupTags(ul, blocks @ [block]) :: tail
                                         | (groups,
-                                            Block.Text(Text.ListItem(_, _, false))&block) -> GroupTags(Some("ul"), [block]) :: groups
+                                            Block.Text(Text.ListItem(_, _, false, _))&block) -> GroupTags(Some("ul"), [block]) :: groups
                                         | (groups,
-                                            Block.Text(Text.ListItem(_, _, true))&block) -> GroupTags(Some("ol"), [block]) :: groups
+                                            Block.Text(Text.ListItem(_, _, true, _))&block) -> GroupTags(Some("ol"), [block]) :: groups
                                         | (groups, block) -> GroupTags(None, [block]) :: groups) List.Empty
                                     |> List.rev
                                 |> List.collect (function GroupTags(Some(tag), blocks)

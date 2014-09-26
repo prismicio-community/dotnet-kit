@@ -91,6 +91,7 @@ module internal FragmentsParsers =
             height = asIntegerOption(oembed>?"height");
             html = asStringOption(oembed>?"html");
             oembedJson = oembed
+            label = asStringOption(oembed>?"label");
         }
     let parseFragmentEmbed (f:JsonValue) = Fragment.Embed(parseEmbed(f))
     let parseGeoPoint (f:JsonValue) =
@@ -124,23 +125,31 @@ module internal FragmentsParsers =
                 Heading(
                         f?text.AsString(),
                         parseSpanSeq f,
-                        level))
+                        level,
+                        asStringOption(f>?"label")
+                        ))
         let parseParagraph (f:JsonValue) =
             Block.Text(
                 Paragraph(
                     f?text.AsString(),
-                    parseSpanSeq f))
+                    parseSpanSeq f,
+                    asStringOption(f>?"label")
+                    ))
         let parsePreformatted (f:JsonValue) =
             Block.Text(
                 Preformatted(
                     f?text.AsString(),
-                    parseSpanSeq f))
+                    parseSpanSeq f,
+                    asStringOption(f>?"label")
+                    ))
         let parseListItemWithOrdered ordered (f:JsonValue) =
             Block.Text(
                 ListItem(
                     f?text.AsString(),
                     parseSpanSeq f,
-                    ordered))
+                    ordered,
+                    asStringOption(f>?"label")
+                    ))
         let parseListItem = parseListItemWithOrdered false
         let parseOListItem = parseListItemWithOrdered true
         let parseBlockImage (f:JsonValue) = Block.Image(parseImageView f)
