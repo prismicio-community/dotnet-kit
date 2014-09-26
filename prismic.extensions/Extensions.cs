@@ -47,7 +47,7 @@ namespace prismic.extensions
 		/// <param name="logger">Logger.</param>
 		public static Task<prismic.Api.Api> Get(FSharpOption<string> maybeToken, string url, prismic.ApiInfra.ICache<prismic.Api.Response> cache, Action<string, string> logger)
 		{
-			return FSharpAsync.StartAsTask (prismic.Api.get(cache, logger.ToFSharpFunc(), maybeToken, url), 
+			return FSharpAsync.StartAsTask (prismic.Api.get(cache, logger.ToFSharpFunc(), maybeToken, url),
 				FSharpOption<TaskCreationOptions>.None , FSharpOption<CancellationToken>.None);
 		}
 
@@ -113,7 +113,7 @@ namespace prismic.extensions
 		{
 			FSharpFunc<Fragments.DocumentLink, FSharpFunc<FSharpOption<string>, string>> f = resolver.FCurry ();
 			return prismic.Api.DocumentLinkResolver.For (api, f);
-		}			
+		}
 
 		private static FSharpFunc<A, FSharpFunc<B, R>> FCurry<A, B, R>(this Func<A, B, R> f)
 		{
@@ -196,17 +196,17 @@ namespace prismic.extensions
 
 		public static FSharpOption<Fragments.Fragment.Number> GetNumber(this Fragments.GroupDoc document, string field)
 		{
-			return document.fragments.GetNumber (field); 
+			return document.fragments.GetNumber (field);
 		}
 
 		public static FSharpOption<Fragments.Fragment.Date> GetDate(this Fragments.GroupDoc document, string field)
 		{
-			return document.fragments.GetDate (field); 
+			return document.fragments.GetDate (field);
 		}
 
 		public static FSharpOption<Fragments.Fragment.Timestamp> GetTimestamp(this Fragments.GroupDoc document, string field)
 		{
-			return document.fragments.GetTimestamp (field); 
+			return document.fragments.GetTimestamp (field);
 		}
 
 
@@ -231,7 +231,7 @@ namespace prismic.extensions
 		{
 			return document.fragments.GetAll (field);
 		}
-			
+
 		public static FSharpOption<Fragments.Fragment.Link> GetLink(this prismic.Api.Document document, string field)
 		{
 			return document.fragments.GetLink (field);
@@ -246,7 +246,7 @@ namespace prismic.extensions
 		{
 			return document.fragments.GetAllImages (field);
 		}
-			
+
 		public static FSharpOption<Fragments.ImageView> GetImageView(this prismic.Api.Document document, string view, string field)
 		{
 			return document.fragments.GetImageView (view, field);
@@ -274,17 +274,17 @@ namespace prismic.extensions
 
 		public static FSharpOption<Fragments.Fragment.Number> GetNumber(this prismic.Api.Document document, string field)
 		{
-			return document.fragments.GetNumber (field); 
+			return document.fragments.GetNumber (field);
 		}
 
 		public static FSharpOption<Fragments.Fragment.Date> GetDate(this prismic.Api.Document document, string field)
 		{
-			return document.fragments.GetDate (field); 
+			return document.fragments.GetDate (field);
 		}
 
 		public static FSharpOption<Fragments.Fragment.Timestamp> GetTimestamp(this prismic.Api.Document document, string field)
 		{
-			return document.fragments.GetTimestamp (field); 
+			return document.fragments.GetTimestamp (field);
 		}
 
 		public static bool GetBoolean(this prismic.Api.Document document, string field)
@@ -411,6 +411,19 @@ namespace prismic.extensions
 		}
 
 		/// <summary>
+		/// Extracts an image link, if there is some, from a link, if there is some.
+		/// </summary>
+		/// <returns>Maybe the image link.</returns>
+		/// <param name="link">Maybe a Link.</param>
+		public static FSharpOption<Fragments.ImageLink> BindAsImageLink(this FSharpOption<Fragments.Fragment.Link> link)
+		{
+			var map = CSharpAdapters.CreateFunc<Fragments.Fragment.Link, FSharpOption<Fragments.ImageLink>> (
+				l => l.Item.IsImageLink
+				? FSharpOption<Fragments.ImageLink>.Some(((Fragments.Link.ImageLink)l.Item).Item)
+				: FSharpOption<Fragments.ImageLink>.None);
+			return OptionModule.Bind (map, link);
+		}
+		/// <summary>
 		/// Extracts a media link, if there is some, from a link, if there is some.
 		/// </summary>
 		/// <returns>Maybe the media link.</returns>
@@ -418,8 +431,8 @@ namespace prismic.extensions
 		public static FSharpOption<Fragments.MediaLink> BindAsMediaLink(this FSharpOption<Fragments.Fragment.Link> link)
 		{
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment.Link, FSharpOption<Fragments.MediaLink>> (
-				l => l.Item.IsMediaLink 
-				? FSharpOption<Fragments.MediaLink>.Some(((Fragments.Link.MediaLink)l.Item).Item) 
+				l => l.Item.IsMediaLink
+				? FSharpOption<Fragments.MediaLink>.Some(((Fragments.Link.MediaLink)l.Item).Item)
 				: FSharpOption<Fragments.MediaLink>.None);
 			return OptionModule.Bind (map, link);
 		}
@@ -431,8 +444,8 @@ namespace prismic.extensions
 		public static FSharpOption<Fragments.DocumentLink> BindAsDocumentLink(this FSharpOption<Fragments.Fragment.Link> link)
 		{
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment.Link, FSharpOption<Fragments.DocumentLink>> (
-				l => l.Item.IsDocumentLink 
-				? FSharpOption<Fragments.DocumentLink>.Some(((Fragments.Link.DocumentLink)l.Item).Item) 
+				l => l.Item.IsDocumentLink
+				? FSharpOption<Fragments.DocumentLink>.Some(((Fragments.Link.DocumentLink)l.Item).Item)
 				: FSharpOption<Fragments.DocumentLink>.None);
 			return OptionModule.Bind (map, link);
 		}
@@ -445,11 +458,11 @@ namespace prismic.extensions
 		{
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment.Link, FSharpOption<Fragments.WebLink>> (
 				l => l.Item.IsWebLink
-				? FSharpOption<Fragments.WebLink>.Some(((Fragments.Link.WebLink)l.Item).Item) 
+				? FSharpOption<Fragments.WebLink>.Some(((Fragments.Link.WebLink)l.Item).Item)
 				: FSharpOption<Fragments.WebLink>.None);
 			return OptionModule.Bind (map, link);
 		}
-			
+
 		/// <summary>
 		/// Extracts a media link, if there is some, from a fragment, if there is some.
 		/// </summary>
@@ -459,7 +472,7 @@ namespace prismic.extensions
 		{
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, FSharpOption<Fragments.Fragment.Link>> (
 				l => l.IsLink
-				? FSharpOption<Fragments.Fragment.Link>.Some((Fragments.Fragment.Link)l) 
+				? FSharpOption<Fragments.Fragment.Link>.Some((Fragments.Fragment.Link)l)
 				: FSharpOption<Fragments.Fragment.Link>.None);
 			return OptionModule.Bind (map, fragment).BindAsMediaLink();
 		}
@@ -472,7 +485,7 @@ namespace prismic.extensions
 		{
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, FSharpOption<Fragments.Fragment.Link>> (
 				l => l.IsLink
-				? FSharpOption<Fragments.Fragment.Link>.Some((Fragments.Fragment.Link)l) 
+				? FSharpOption<Fragments.Fragment.Link>.Some((Fragments.Fragment.Link)l)
 				: FSharpOption<Fragments.Fragment.Link>.None);
 			return OptionModule.Bind (map, fragment).BindAsDocumentLink();
 		}
@@ -485,7 +498,7 @@ namespace prismic.extensions
 		{
 			var map = CSharpAdapters.CreateFunc<Fragments.Fragment, FSharpOption<Fragments.Fragment.Link>> (
 				l => l.IsLink
-				? FSharpOption<Fragments.Fragment.Link>.Some((Fragments.Fragment.Link)l) 
+				? FSharpOption<Fragments.Fragment.Link>.Some((Fragments.Fragment.Link)l)
 				: FSharpOption<Fragments.Fragment.Link>.None);
 			return OptionModule.Bind (map, fragment).BindAsWebLink();
 		}
@@ -550,4 +563,3 @@ namespace prismic.extensions
 
 
 }
-

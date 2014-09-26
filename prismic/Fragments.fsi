@@ -15,11 +15,13 @@ module Fragments =
        isBroken: bool; }
     and WebLink = { url:string; contentType:string option}
     and MediaLink = { url:string; kind:string; size:Int64; filename:string }
+    and ImageLink = { name:string; url:string; size:Int64; height:Int64; width:Int64 }
     and GroupDoc = { fragments: TupleList<string, Fragment> }
     and Link =
       | WebLink of WebLink
       | MediaLink of MediaLink
       | DocumentLink of DocumentLink
+      | ImageLink of ImageLink
     and Span =
       | Em of (int * int) // start, end
       | Strong of (int * int) // start, end
@@ -39,7 +41,7 @@ module Fragments =
     and StructuredText =
       | Span of Span
       | Block of Block
-    and Color = 
+    and Color =
         { hex:string } with member asRGB : Int16 * Int16 * Int16 end
     and Fragment =
       | Link of Link

@@ -5,49 +5,49 @@ open FSharp.Data.JsonExtensions
 open Shortcuts
 open Fragments
 
-module internal FragmentsParsers = 
+module internal FragmentsParsers =
 
-    let parseImageView (f:JsonValue) = {    url=  f?url.AsString(); 
-                                            width= f?dimensions?width.AsInteger(); 
-                                            height= f?dimensions?height.AsInteger(); 
+    let parseImageView (f:JsonValue) = {    url=  f?url.AsString();
+                                            width= f?dimensions?width.AsInteger();
+                                            height= f?dimensions?height.AsInteger();
                                             alt= asStringOption(f>?"alt") }
-    let parseImage (f:JsonValue) = 
+    let parseImage (f:JsonValue) =
                         let main = parseImageView f?main
                         let views = asTupleListFromProperties parseImageView f?views
                         Image(main, views)
 
-    let parseColor (f:JsonValue) = 
+    let parseColor (f:JsonValue) =
         let s = f.AsString()
-        let parsed = tryParseHexColor(s) <?-- (lazy raise (ArgumentException("Invalid color value " + s))) 
+        let parsed = tryParseHexColor(s) <?-- (lazy raise (ArgumentException("Invalid color value " + s)))
         Color({hex=s})
-    let parseNumber (f:JsonValue) = 
+    let parseNumber (f:JsonValue) =
         Number(
-            f.AsFloat()) // err : Invalid number value 
-    let parseDate (f:JsonValue) = 
+            f.AsFloat()) // err : Invalid number value
+    let parseDate (f:JsonValue) =
         Date(
-            f.AsDateTime()) // err : Invalid date value 
-    let parseTimestamp (f:JsonValue) = 
+            f.AsDateTime()) // err : Invalid date value
+    let parseTimestamp (f:JsonValue) =
         Timestamp(
-            f.AsDateTime()) // err : Invalid date value 
-    let parseUnixMsDate (f:JsonValue) = 
+            f.AsDateTime()) // err : Invalid date value
+    let parseUnixMsDate (f:JsonValue) =
         Date(
-            asDateTimeFromUnixMs f) // err : Invalid date value 
-    let parseText (f:JsonValue) = 
+            asDateTimeFromUnixMs f) // err : Invalid date value
+    let parseText (f:JsonValue) =
         Text(
-            f.AsString()) // err : Invalid text value 
-    let parseSelect (f:JsonValue) = 
+            f.AsString()) // err : Invalid text value
+    let parseSelect (f:JsonValue) =
         Text(
-            f.AsString()) // err : Invalid text value 
-    let parseEmbed (f:JsonValue) = 
+            f.AsString()) // err : Invalid text value
+    let parseEmbed (f:JsonValue) =
         let oembed = f?oembed in
         {
             typ = oembed.GetProperty("type").AsString();
             provider = oembed?provider_name.AsString();
             url = oembed?embed_url.AsString();
-            width = asIntegerOption(oembed>?"width"); 
-            height = asIntegerOption(oembed>?"height"); 
+            width = asIntegerOption(oembed>?"width");
+            height = asIntegerOption(oembed>?"height");
             html = asStringOption(oembed>?"html");
-            oembedJson = oembed 
+            oembedJson = oembed
         }
     let parseFragmentEmbed (f:JsonValue) = Fragment.Embed(parseEmbed(f))
     let parseGeoPoint (f:JsonValue) =
@@ -55,67 +55,77 @@ module internal FragmentsParsers =
                  latitude = asDecimal(f?latitude);
                  longitude = asDecimal(f?longitude)
         })
-    let parseWebLink (f:JsonValue) = 
+    let parseWebLink (f:JsonValue) =
         WebLink({
                 url = f?url.AsString();
                 contentType = Option.None
         })
     let parseFragmentWebLink (f:JsonValue) = Fragment.Link(parseWebLink(f))
-    let parseDocumentLink (f:JsonValue) = 
+    let parseDocumentLink (f:JsonValue) =
         let doc = f?document in
         let isBroken = (asBooleanOption(f>?"isBroken")) <?- false
         DocumentLink({
                         id = doc?id.AsString();
                         typ = doc.GetProperty("type").AsString();
-                        tags = asArrayOrEmpty doc "tags" |> Array.map (fun j -> j.AsString()) |> Seq.ofArray; 
+                        tags = asArrayOrEmpty doc "tags" |> Array.map (fun j -> j.AsString()) |> Seq.ofArray;
                         slug = doc?slug.AsString();
                         isBroken = isBroken})
     let parseFragmentDocumentLink (f:JsonValue) = Fragment.Link(parseDocumentLink(f))
-    let parseMediaLink (f:JsonValue) = 
+    let parseMediaLink (f:JsonValue) =
         let file = f?file in
         MediaLink({
-                    url = file?url.AsString(); 
+                    url = file?url.AsString();
                     kind = file?kind.AsString();
-                    size = file?size.AsInteger64(); 
+                    size = file?size.AsInteger64();
                     filename = file?name.AsString()})
+    let parseImageLink (f:JsonValue) =
+        let image = f?image in
+        ImageLink({
+                    name = image?name.AsString();
+                    url = image?url.AsString();
+                    size = image?size.AsInteger64();
+                    height = image?height.AsInteger64();
+                    width = image?width.AsInteger64()})
     let parseFragmentMediaLink (f:JsonValue) = Fragment.Link(parseMediaLink(f))
-    let parseStructuredText (f:JsonValue) =  
-        let parseSpan (f:JsonValue) = 
+    let parseStructuredText (f:JsonValue) =
+        let parseSpan (f:JsonValue) =
             let type' = f.GetProperty("type").AsString()
             let start = f?start.AsInteger()
             let end' = f.GetProperty("end").AsInteger()
-            let data = f>?"data" 
-            match (type', data) with 
+            let data = f>?"data"
+            match (type', data) with
                         | ("strong", _) -> Strong(start, end')
                         | ("em", _) -> Em(start, end')
-                        | ("hyperlink", Some(d)) when d.GetProperty("type").AsString() = "Link.web" -> 
+                        | ("hyperlink", Some(d)) when d.GetProperty("type").AsString() = "Link.web" ->
                             Hyperlink(start, end', parseWebLink(d?value))
-                        | ("hyperlink", Some(d)) when d.GetProperty("type").AsString() = "Link.document" -> 
-                            Hyperlink(start, end', parseDocumentLink(d?value)) 
-                        | ("hyperlink", Some(d)) when d.GetProperty("type").AsString() = "Link.file" -> 
-                            Hyperlink(start, end', parseMediaLink(d?value)) 
+                        | ("hyperlink", Some(d)) when d.GetProperty("type").AsString() = "Link.document" ->
+                            Hyperlink(start, end', parseDocumentLink(d?value))
+                        | ("hyperlink", Some(d)) when d.GetProperty("type").AsString() = "Link.file" ->
+                            Hyperlink(start, end', parseMediaLink(d?value))
+                        | ("hyperlink", Some(d)) when d.GetProperty("type").AsString() = "Link.image" ->
+                            Hyperlink(start, end', parseImageLink(d?value))
                         | (t, _) -> raise (ArgumentException("Unsupported span type "+ t))
         let parseSpanSeq (f:JsonValue) = f?spans.AsArray() |> Array.map (fun s -> parseSpan s) |> Seq.ofArray
-        let parseHeading level (f:JsonValue) = 
+        let parseHeading level (f:JsonValue) =
             Block.Text(
                 Heading(
-                        f?text.AsString(), 
-                        parseSpanSeq f, 
+                        f?text.AsString(),
+                        parseSpanSeq f,
                         level))
-        let parseParagraph (f:JsonValue) = 
+        let parseParagraph (f:JsonValue) =
             Block.Text(
                 Paragraph(
-                    f?text.AsString(), 
+                    f?text.AsString(),
                     parseSpanSeq f))
         let parsePreformatted (f:JsonValue) =
             Block.Text(
                 Preformatted(
-                    f?text.AsString(), 
+                    f?text.AsString(),
                     parseSpanSeq f))
-        let parseListItemWithOrdered ordered (f:JsonValue) = 
+        let parseListItemWithOrdered ordered (f:JsonValue) =
             Block.Text(
                 ListItem(
-                    f?text.AsString(), 
+                    f?text.AsString(),
                     parseSpanSeq f,
                     ordered))
         let parseListItem = parseListItemWithOrdered false
@@ -139,20 +149,20 @@ module internal FragmentsParsers =
         StructuredText(blocks)
 
 
-    let rec parseFragment (j:JsonValue) = 
-        let parseGroup (f:JsonValue) = 
+    let rec parseFragment (j:JsonValue) =
+        let parseGroup (f:JsonValue) =
             let g = f.AsArray() |> Array.map (fun x -> {fragments = asTupleListFromOptionProperties parseFragment x}) |> Seq.ofArray
             Group(g)
 
-        let t = j.GetProperty("type").AsString() in 
+        let t = j.GetProperty("type").AsString() in
         let maybeParser = match t with
-                            | "Image" -> Some(parseImage) 
+                            | "Image" -> Some(parseImage)
                             | "Color" -> Some(parseColor)
-                            | "Number" -> Some(parseNumber) 
-                            | "Date" -> Some(parseDate) 
-                            | "Timestamp" -> Some(parseTimestamp) 
+                            | "Number" -> Some(parseNumber)
+                            | "Date" -> Some(parseDate)
+                            | "Timestamp" -> Some(parseTimestamp)
                             | "Text" -> Some(parseText)
-                            | "Select" -> Some(parseSelect) 
+                            | "Select" -> Some(parseSelect)
                             | "Embed" -> Some(parseFragmentEmbed)
                             | "GeoPoint" -> Some(parseGeoPoint)
                             | "Link.web" -> Some(parseFragmentWebLink)
@@ -163,15 +173,15 @@ module internal FragmentsParsers =
                             | _ -> None
         let value = j.GetProperty("value") in
         maybeParser |> Option.bind (fun parser -> Some(parser value))
-    
+
     type ParsedFieldArrayElement = (int * Fragment)
     type ParsedField = Single of Fragment
                         | Array of ParsedFieldArrayElement[]
 
-    let parseField (j:JsonValue) = 
+    let parseField (j:JsonValue) =
         match j with
-            | JsonArray a ->    
-                            let elements = a 
+            | JsonArray a ->
+                            let elements = a
                                             |> Array.mapi (fun i o -> match parseFragment o with
                                                                                     | Some(f) -> Some(i, f)
                                                                                     | _ -> None)
@@ -180,7 +190,3 @@ module internal FragmentsParsers =
             | o -> match parseFragment o with
                             | Some(f) -> Some(Single(f))
                             | _ -> None
-
-    
-
-

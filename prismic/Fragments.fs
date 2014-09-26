@@ -13,10 +13,12 @@ module Fragments =
     and DocumentLink = { id: string; typ: string; tags: string seq; slug: string; isBroken: bool }
     and WebLink = { url:string; contentType:string option}
     and MediaLink = { url:string; kind:string; size:Int64; filename:string }
+    and ImageLink = { name:string; url:string; size:Int64; height:Int64; width:Int64 }
     and GroupDoc = { fragments: TupleList<string, Fragment> }
     and Link = WebLink of WebLink
                 | MediaLink of MediaLink
                 | DocumentLink of DocumentLink
+                | ImageLink of ImageLink
     and Span = Em of (int * int)
                 | Strong of (int * int)
                 | Hyperlink of (int * int * Link)
@@ -46,5 +48,3 @@ module Fragments =
                     | Image of (ImageView * TupleList<string, ImageView>) // (main * views)
                     | Group of GroupDoc seq
                     | StructuredText of Block seq
-
-
