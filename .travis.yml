@@ -12,6 +12,6 @@ before_install:
 
 script:
  - xbuild 
- - .ci/nunit.sh prismic.tests/bin/Debug/prismic.tests.dll
- - .ci/nunit.sh prismic.csharp.tests/bin/Debug/prismic.csharp.tests.dll
+ - .ci/nunit.sh src/prismic.tests/bin/Debug/prismic.tests.dll
+ - .ci/nunit.sh src/prismic.csharp.tests/bin/Debug/prismic.csharp.tests.dll
 
