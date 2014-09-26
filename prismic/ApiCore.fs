@@ -9,6 +9,9 @@ open System.Web
 
 module internal ApiCore =
 
+    let version = "1.0.8"
+    let userAgent = String.Format("Prismic-Dotnet/{0} Dotnet", version)
+
     let inline reraisePreserveStackTrace (e:Exception) =
         let remoteStackTraceString = typeof<exn>.GetField("_remoteStackTraceString", BindingFlags.Instance ||| BindingFlags.NonPublic);
         remoteStackTraceString.SetValue(e, e.StackTrace + Environment.NewLine);

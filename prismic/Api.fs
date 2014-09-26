@@ -20,7 +20,6 @@ module Api =
     and ParsingException (message:string, ?innerException:exn) =
         inherit System.Exception (message, 
             match innerException with | Some(ex) -> ex | _ -> null)
-    
 
     type Ref = { releaseId:string; refId:string; label:string; isMasterRef:bool; scheduledAt:System.DateTime option }
                        static member fromJson (json:JsonValue) = {
@@ -149,6 +148,7 @@ module Api =
                                 | Some(cached) -> return cached
                                 | None -> 
                                     let request = HttpWebRequest.Create(url) :?> HttpWebRequest
+                                    request.UserAgent <- ApiCore.userAgent
 //                                  request.AllowAutoRedirect <- true
 //                                  request.ReadWriteTimeout <- 120000
 //                                  request.Timeout <- 120000
@@ -239,6 +239,7 @@ module Api =
 
     let fetchPrismicJson cache logger (url:string) (token:string option) = async {
         let request = HttpWebRequest.Create(url) :?> HttpWebRequest
+        request.UserAgent <- ApiCore.userAgent
         request.AllowAutoRedirect <- true
         request.ReadWriteTimeout <- 120000
         request.Timeout <- 120000
