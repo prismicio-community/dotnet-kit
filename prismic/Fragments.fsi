@@ -26,6 +26,7 @@ module Fragments =
       | Em of (int * int) // start, end
       | Strong of (int * int) // start, end
       | Hyperlink of (int * int * Link) // start, end, link
+      | Label of (int * int * string) // start, end, label
     and Embed =
       { typ:string; provider:string; url:string; width:int option; height:int option; html:string option; oembedJson:JsonValue }
     and GeoPoint = {latitude: decimal; longitude: decimal}

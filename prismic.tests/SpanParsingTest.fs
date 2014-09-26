@@ -6,7 +6,7 @@ open prismic
 
 
 [<TestFixture>]
-type SpanParsingTest() = 
+type SpanParsingTest() =
 
     let structured_text_paragraph = """{
   "type": "StructuredText",
@@ -34,6 +34,14 @@ type SpanParsingTest() =
       "start": 162,
       "end": 183,
       "type": "strong"
+    },
+    {
+      "start": 24,
+      "end": 31,
+      "type": "label",
+      "data": {
+        "label": "flavour"
+      }
     }
     ]}
   ]
@@ -46,7 +54,7 @@ type SpanParsingTest() =
             "text" : "Powering Through 2013 ",
             "spans" : [
                 {
-                    "start": 0, 
+                    "start": 0,
                     "end": 22,
                     "type": "strong"
                 }
@@ -57,7 +65,7 @@ type SpanParsingTest() =
             "text" : "Online Resources:",
             "spans" : [
                 {
-                    "start": 0, 
+                    "start": 0,
                     "end": 17,
                     "type": "strong"
                 }
@@ -83,7 +91,7 @@ type SpanParsingTest() =
     ]
 }"""
 
-    let linkresolver = Api.DocumentLinkResolver.For(fun l -> 
+    let linkresolver = Api.DocumentLinkResolver.For(fun l ->
                                     String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
 
     [<Test>]
@@ -95,7 +103,7 @@ type SpanParsingTest() =
 <ul>
 <li>Hear more from our executive team as they reflect on 2013 and share their vision for 2014 on our blog <a href="http://prismic.io">here</a></li>
 </ul>"""
-        let actual = fragment |> Option.map (fun f -> Api.asHtml linkresolver f) 
+        let actual = fragment |> Option.map (fun f -> Api.asHtml linkresolver f)
         Assert.AreEqual(Some(expected), actual)
 
 
@@ -103,8 +111,6 @@ type SpanParsingTest() =
     member x.``Should Serialize Span Html in structured texts when multiple spans``() =
         let json = JsonValue.Parse structured_text_paragraph
         let fragment = FragmentsParsers.parseFragment(json)
-        let expected = """<p>Experience <a href="http://prismic.io">the</a> ultimate vanilla experience. Our vanilla Macarons are made with our very own (in-house) <em>pure extract of Madagascar vanilla</em>, and subtly dusted with <strong>our own vanilla sugar</strong> (which we make from real vanilla beans).</p>"""
-        let actual = fragment |> Option.map (fun f -> Api.asHtml linkresolver f) 
+        let expected = """<p>Experience <a href="http://prismic.io">the</a> ultimate <span class="flavour">vanilla</span> experience. Our vanilla Macarons are made with our very own (in-house) <em>pure extract of Madagascar vanilla</em>, and subtly dusted with <strong>our own vanilla sugar</strong> (which we make from real vanilla beans).</p>"""
+        let actual = fragment |> Option.map (fun f -> Api.asHtml linkresolver f)
         Assert.AreEqual(Some(expected), actual)
-
-

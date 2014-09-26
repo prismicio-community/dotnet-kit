@@ -108,6 +108,7 @@ module internal FragmentsParsers =
             match (type', data) with
                         | ("strong", _) -> Strong(start, end')
                         | ("em", _) -> Em(start, end')
+                        | ("label", Some(d)) -> Label(start, end', d?label.AsString())
                         | ("hyperlink", Some(d)) when d.GetProperty("type").AsString() = "Link.web" ->
                             Hyperlink(start, end', parseWebLink(d?value))
                         | ("hyperlink", Some(d)) when d.GetProperty("type").AsString() = "Link.document" ->

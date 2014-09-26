@@ -58,6 +58,7 @@ module FragmentsHtml =
                                 let writeTag opening = function
                                                         | Span.Em(_, _) -> if opening then "<em>" else "</em>"
                                                         | Span.Strong(_, _) -> if opening then "<strong>" else "</strong>"
+                                                        | Span.Label(_, _, label) -> if opening then String.Format("""<span class="{0}">""", label) else "</span>"
                                                         | Span.Hyperlink(_, _, Link.DocumentLink(l))
                                                             -> if opening then String.Format("""<a href="{0}">""", linkResolver l) else "</a>"
                                                         | Span.Hyperlink(_, _, Link.MediaLink(l))
@@ -66,7 +67,6 @@ module FragmentsHtml =
                                                             -> if opening then String.Format("""<a href="{0}">""", l.url) else "</a>"
                                                         | Span.Hyperlink(_, _, Link.ImageLink(l))
                                                             -> if opening then String.Format("""<a href="{0}">""", l.url) else "</a>"
-                                                        //| _ -> if opening then "<span>" else "</span>"
                                 let writeHtml endingsToApply startingsToApply =
                                     let e = endingsToApply
                                             |> Seq.map (fun e -> writeTag false e)
@@ -75,8 +75,8 @@ module FragmentsHtml =
                                             |> Seq.map (fun e -> writeTag true e)
                                             |> String.concat "\n"
                                     String.Format("{0}{1}", e, s)
-                                let spanStart = function Span.Em(start, _) | Span.Strong(start, _) | Span.Hyperlink(start, _, _) -> start
-                                let spanEnd = function Span.Em(_, end') | Span.Strong(_, end') | Span.Hyperlink(_, end', _) -> end'
+                                let spanStart = function Span.Em(start, _) | Span.Strong(start, _) | Span.Hyperlink(start, _, _) | Span.Label(start, _, _) -> start
+                                let spanEnd = function Span.Em(_, end') | Span.Strong(_, end') | Span.Hyperlink(_, end', _) | Span.Label(_, end', _) -> end'
                                 let rec step in' (startings:Span list) (endings:Span list) (html:hlist<string>) =
                                     // get the min of 2 options
                                     let (<-->) (a:int option) b = [a ; b] |> List.choose id |> function [] -> None | x -> Some(List.min x)
