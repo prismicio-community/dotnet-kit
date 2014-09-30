@@ -47,10 +47,10 @@ module internal FragmentsParsers =
         alt= asStringOption(f>?"alt");
         linkTo= match f.TryGetProperty("linkTo") with
                 | Some(json) -> match json.TryGetProperty("type") |> Option.map (fun t -> t.AsString()) with
-                                | Some("Link.web") -> Some(parseWebLink json)
-                                | Some("Link.document") -> Some(parseDocumentLink json)
-                                | Some("Link.file") -> Some(parseMediaLink json)
-                                | Some("Link.image") -> Some(parseImageLink json)
+                                | Some("Link.web") -> Some(parseWebLink json?value)
+                                | Some("Link.document") -> Some(parseDocumentLink json?value)
+                                | Some("Link.file") -> Some(parseMediaLink json?value)
+                                | Some("Link.image") -> Some(parseImageLink json?value)
                                 | _ -> None
                 | _ -> None
     }
