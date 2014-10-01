@@ -160,6 +160,8 @@ module internal FragmentsParsers =
                                         | "heading2" -> parseHeading 2 f
                                         | "heading3" -> parseHeading 3 f
                                         | "heading4" -> parseHeading 4 f
+                                        | "heading5" -> parseHeading 5 f
+                                        | "heading6" -> parseHeading 6 f
                                         | "paragraph" -> parseParagraph f
                                         | "preformatted" -> parsePreformatted f
                                         | "list-item" -> parseListItem f

@@ -38,3 +38,6 @@
 ### New in 1.0.10 (Release 2014/09/30)
 * Fix parsing for Links in images
 
+### New in 1.0.11 (Release 2014/10/01)
+* Add support for h5 and h6
+
