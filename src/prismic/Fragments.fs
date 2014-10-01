@@ -32,8 +32,8 @@ module Fragments =
     and Block = Text of Text
                 | Image of ImageView
                 | Embed of Embed
-    and StructuredText = Span of Span
-                         | Block of Block
+    and Element = Span of Span
+                | Block of Block
     and Color = { hex:string }
                     member x.asRGB = match tryParseHexColor x.hex with
                                         Some(r :: g :: b :: []) -> (System.Int16.Parse(r), System.Int16.Parse(g), System.Int16.Parse(b))

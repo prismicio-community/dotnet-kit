@@ -114,7 +114,7 @@ type SpanParsingTest() =
 <ul>
 <li>Hear more from our executive team as they reflect on 2013 and share their vision for 2014 on our blog <a href="http://prismic.io">here</a></li>
 </ul>"""
-        let actual = fragment |> Option.map (fun f -> Api.asHtml linkresolver f)
+        let actual = fragment |> Option.map (fun f -> Api.asHtml linkresolver Api.HtmlSerializer.Empty f)
         Assert.AreEqual(Some(expected), actual)
 
 
@@ -123,7 +123,7 @@ type SpanParsingTest() =
         let json = JsonValue.Parse structured_text_paragraph
         let fragment = FragmentsParsers.parseFragment(json)
         let expected = """<p>Experience <a href="http://prismic.io">the</a> ultimate <span class="flavour">vanilla</span> experience. Our vanilla Macarons are made with our very own (in-house) <em>pure extract of Madagascar vanilla</em>, and subtly dusted with <strong>our own vanilla sugar</strong> (which we make from real vanilla beans).</p>"""
-        let actual = fragment |> Option.map (fun f -> Api.asHtml linkresolver f)
+        let actual = fragment |> Option.map (fun f -> Api.asHtml linkresolver Api.HtmlSerializer.Empty f)
         Assert.AreEqual(Some(expected), actual)
 
     [<Test>]
@@ -131,5 +131,5 @@ type SpanParsingTest() =
         let json = JsonValue.Parse structured_text_with_block_labels
         let fragment = FragmentsParsers.parseFragment(json)
         let expected = """<h3 class="menu">Powering Through 2013</h3>"""
-        let actual = fragment |> Option.map (fun f -> Api.asHtml linkresolver f)
+        let actual = fragment |> Option.map (fun f -> Api.asHtml linkresolver Api.HtmlSerializer.Empty f)
         Assert.AreEqual(Some(expected), actual)

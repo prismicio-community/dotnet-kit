@@ -15,19 +15,19 @@ module Api =
     exception UnexpectedError of string
 
     type FetchingException (message:string, ?innerException:exn) =
-        inherit System.Exception (message, 
+        inherit System.Exception (message,
             match innerException with | Some(ex) -> ex | _ -> null)
     and ParsingException (message:string, ?innerException:exn) =
-        inherit System.Exception (message, 
+        inherit System.Exception (message,
             match innerException with | Some(ex) -> ex | _ -> null)
 
     type Ref = { releaseId:string; refId:string; label:string; isMasterRef:bool; scheduledAt:System.DateTime option }
                        static member fromJson (json:JsonValue) = {
                             releaseId = json?id.AsString();
-                            refId = json?ref.AsString(); 
-                            label = json?label.AsString(); 
-                            isMasterRef = (asBooleanOption(json>?"isMasterRef")) <?- false; 
-                            scheduledAt = asDateTimeFromUnixMsOption(json>?"scheduledAt") 
+                            refId = json?ref.AsString();
+                            label = json?label.AsString();
+                            isMasterRef = (asBooleanOption(json>?"isMasterRef")) <?- false;
+                            scheduledAt = asDateTimeFromUnixMsOption(json>?"scheduledAt")
                        }
 
     and Field = { fieldType: string; multiple: bool; fieldDefault: string option }
@@ -37,8 +37,8 @@ module Api =
                             fieldDefault = asStringOption(json>?"default")
                         }
 
-    and Form = { name:string option; formMethod:string; rel:string option; enctype:string; action:string; fields: TupleList<string, Field> } 
-                        static member fromJson (json:JsonValue) = { 
+    and Form = { name:string option; formMethod:string; rel:string option; enctype:string; action:string; fields: TupleList<string, Field> }
+                        static member fromJson (json:JsonValue) = {
                             name = asStringOption(json>?"name");
                             formMethod = json.GetProperty("method").AsString();
                             rel = asStringOption(json>?"rel");
@@ -46,18 +46,18 @@ module Api =
                             action = json?action.AsString();
                             fields = asTupleListFromProperties (Field.fromJson) (json?fields)
                         }
-                        member this.defaultData = 
-                            let addDefault state (k, f) = 
+                        member this.defaultData =
+                            let addDefault state (k, f) =
                                 f.fieldDefault |> Option.fold (fun m defval -> m |> TupleList.add (k, seq { yield defval })) state
                             this.fields |> TupleList.fold addDefault TupleList.empty
 
 
     and ApiData = { refs:Ref seq; bookmarks:Map<string, string>; types:Map<string, string>; tags:string seq; forms: TupleList<string, Form>; oauthEndpoints:string * string  }
-                        static member fromJson (json:JsonValue) = { 
-                            refs = json?refs.AsArray() |> Array.map Ref.fromJson; 
+                        static member fromJson (json:JsonValue) = {
+                            refs = json?refs.AsArray() |> Array.map Ref.fromJson;
                             bookmarks = asStringMapFromProperties(json?bookmarks);
                             types = asStringMapFromProperties(json?types);
-                            tags = json?tags.AsArray() |> Array.map asString; 
+                            tags = json?tags.AsArray() |> Array.map asString;
                             forms = asTupleListFromProperties (Form.fromJson) (json?forms)
                             oauthEndpoints = (json?oauth_initiate.AsString(), json?oauth_token.AsString())
                         }
@@ -67,41 +67,41 @@ module Api =
                                 id = json?id.AsString();
                                 typ = json.GetProperty("type").AsString();
                                 slug = asStringOption(json>?"slug")
-                                tags = json?tags.AsArray() |> Array.map asString; 
+                                tags = json?tags.AsArray() |> Array.map asString;
                             }
 
-    and Document = { id: string; typ: string; href: string; tags: string seq; slugs: string seq; 
+    and Document = { id: string; typ: string; href: string; tags: string seq; slugs: string seq;
                         fragments: TupleList<string, Fragments.Fragment>; linkedDocuments: LinkedDocument seq }
                         member this.slug = this.slugs |> Seq.tryPick Some <?- "-"
                         member this.isTagged = Seq.forall (fun t -> this.tags |> Seq.exists ((=) t))
-                        static member fromJson (json:JsonValue) = 
+                        static member fromJson (json:JsonValue) =
                             let dType = json.GetProperty("type").AsString() in
 
-                            let parseFragmentsField ((typ:string), j) = 
+                            let parseFragmentsField ((typ:string), j) =
                                 match parseField j with
-                                    | Some(ParsedField.Single(fragment))  
+                                    | Some(ParsedField.Single(fragment))
                                         ->  Seq.singleton (System.String.Format("{0}.{1}", dType, typ), fragment)
-                                    | Some(ParsedField.Array(elements)) 
-                                        -> elements |> Seq.map (fun (idx, fragment) 
+                                    | Some(ParsedField.Array(elements))
+                                        -> elements |> Seq.map (fun (idx, fragment)
                                                                     -> System.String.Format("{0}.{1}[{2}]", dType, typ, idx), fragment)
                                     | None -> Seq.empty
-                            
+
                             let fragments = json?data.GetProperty(dType).Properties |> Seq.ofArray
                                             |> Seq.collect parseFragmentsField |> TupleList.ofSeq
 
                             {
                                 id = json?id.AsString();
                                 href = json?href.AsString();
-                                tags = json?tags.AsArray() |> Array.map asString; 
+                                tags = json?tags.AsArray() |> Array.map asString;
                                 slugs = json?slugs.AsArray() |> Array.map asString;
                                 typ = dType;
                                 fragments = fragments;
-                                linkedDocuments = asArrayOrEmpty json "linked_documents" |> Array.map LinkedDocument.fromJson |> List.ofArray; 
+                                linkedDocuments = asArrayOrEmpty json "linked_documents" |> Array.map LinkedDocument.fromJson |> List.ofArray;
                             }
 
     and Response = { results: List<Document>; page: int; resultsPerPage:int; resultsSize:int; totalResultsSize:int; totalPages:int; nextPage: string option; prevPage: string option; }
-                        static member fromJson (json:JsonValue) = { 
-                                results = json?results.AsArray() |> Array.map Document.fromJson |> List.ofArray; 
+                        static member fromJson (json:JsonValue) = {
+                                results = json?results.AsArray() |> Array.map Document.fromJson |> List.ofArray;
                                 page = json?page.AsInteger();
                                 resultsPerPage = json?results_per_page.AsInteger();
                                 resultsSize = json?results_size.AsInteger();
@@ -111,42 +111,42 @@ module Api =
                                 prevPage = asStringOption(json>?"prev_page");
                             }
 
-    type SearchForm(form, values:TupleList<string, string seq>, cache:prismic.ApiInfra.ICache<Response>, logger) = 
+    type SearchForm(form, values:TupleList<string, string seq>, cache:prismic.ApiInfra.ICache<Response>, logger) =
         let tryFindField fieldName = form.fields |> TupleList.valueForKey fieldName <?-- (lazy raise (System.ArgumentException(sprintf "unknown field %s" fieldName)))
-        let (<<=) (field,fieldName) value = 
-            let singleOrAppend _ v = if field.multiple then Seq.append v (Seq.singleton value) else Seq.singleton value 
+        let (<<=) (field,fieldName) value =
+            let singleOrAppend _ v = if field.multiple then Seq.append v (Seq.singleton value) else Seq.singleton value
             let fieldValues = values |> TupleList.valueForKey fieldName |> Option.fold singleOrAppend (Seq.singleton value)
             let newvalues = values |> TupleList.set (fieldName,  fieldValues)
             SearchForm(form, newvalues, cache, logger)
-        member this.Set(fieldName, value:string) = 
+        member this.Set(fieldName, value:string) =
             let f = tryFindField fieldName
             (f,fieldName) <<= value
-        member this.Set(fieldName, value:int) = 
+        member this.Set(fieldName, value:int) =
             let f = tryFindField fieldName
             if f.fieldType <> "Integer" then raise (System.ArgumentException(sprintf "Cannot use a Int as value for the field %s of type %s" fieldName f.fieldType))
             (f,fieldName) <<= (value.ToString())
         member this.Ref(refId:string) = this.Set("ref", refId)
         member this.Ref(value:Ref) = this.Ref(value.refId)
-        member this.Query(q:string) = 
-            match form.fields |> TupleList.valueForKey "q" |> Option.map (fun field -> field.multiple) with 
+        member this.Query(q:string) =
+            match form.fields |> TupleList.valueForKey "q" |> Option.map (fun field -> field.multiple) with
                 | Some(true) -> this.Set("q", q)
                 | Some(false)
-                | _ ->  (*let strip (q:string) = 
-                                    let a = q.Trim().ToCharArray() 
+                | _ ->  (*let strip (q:string) =
+                                    let a = q.Trim().ToCharArray()
                                     System.String(Array.sub a 1 (a.Length - 2))
                         *)
                         this.Set("q", q)  // Add the Temporary Hack for backward compatibility ?
         member this.Page(p:int) = this.Set("page", p)
-        member this.PageSize(p:int) = this.Set("pageSize", p) 
-        member this.Orderings(o:string) = this.Set("orderings", o) 
-        member this.Submit() = 
+        member this.PageSize(p:int) = this.Set("pageSize", p)
+        member this.Orderings(o:string) = this.Set("orderings", o)
+        member this.Submit() =
             async {
                 match (form.formMethod, form.enctype, form.action) with
-                    | ("GET", "application/x-www-form-urlencoded", action) 
+                    | ("GET", "application/x-www-form-urlencoded", action)
                         ->  let url = ApiCore.buildUrl action (values |> TupleList.toMap)
                             match cache.Get url.PathAndQuery with
                                 | Some(cached) -> return cached
-                                | None -> 
+                                | None ->
                                     let request = HttpWebRequest.Create(url) :?> HttpWebRequest
                                     request.UserAgent <- ApiCore.userAgent
 //                                  request.AllowAutoRedirect <- true
@@ -160,11 +160,11 @@ module Api =
                                         with | e -> return raise (FetchingException(sprintf "Got an error while fetching url %s" (url.ToString()), e))
                                     }
 
-                                    let tryParse p = 
-                                        try 
+                                    let tryParse p =
+                                        try
                                             let parsed = JsonValue.Parse p
                                             Response.fromJson parsed
-                                        with 
+                                        with
                                             | :? ParsingException -> reraise()
                                             | e ->  raise(ParsingException(sprintf "Exception during parsing of %s" p, e))
 
@@ -172,9 +172,9 @@ module Api =
                                         | ParseRegex "max-age\s*=\s*(\d+)" d -> Some(d)
                                         | _ -> None
 
-                                    let addToCache (parsed:Response) (response:ApiCore.httpResponse) = 
+                                    let addToCache (parsed:Response) (response:ApiCore.httpResponse) =
                                             match response.headers |> Map.tryFind "Cache-Control" |> Option.bind (fun a -> a |> Array.tryPick tryMatchMaxAge) with
-                                                | Some(maxage :: []) -> 
+                                                | Some(maxage :: []) ->
                                                     let expiration = System.Int64.Parse(maxage) |> float
                                                     cache.Set url.PathAndQuery parsed (System.DateTimeOffset.Now.AddSeconds(expiration))
                                                     parsed
@@ -189,7 +189,7 @@ module Api =
 
 
     and Api(data:ApiData, cache:prismic.ApiInfra.ICache<Response>, logger:string->string->unit) =
-        member this.Refs = data.refs  
+        member this.Refs = data.refs
                                     |> Seq.groupBy (fun r -> r.label)
                                     |> Seq.fold (fun (m:Map<string, Ref>) (k, t) -> m.Add(k, Seq.head t)) Map.empty
         member this.Bookmarks = data.bookmarks
@@ -198,19 +198,18 @@ module Api =
         member this.OauthInitiateEndpoint = fst data.oauthEndpoints
         member this.OauthTokenEndpoint = snd data.oauthEndpoints
         static member fromJson j cache logger =
-                    let tryParse p = 
-                        try 
+                    let tryParse p =
+                        try
                             let parsed = JsonValue.Parse p
-                            ApiData.fromJson parsed 
-                        with 
+                            ApiData.fromJson parsed
+                        with
                             | :? ParsingException -> reraise()
                             | e -> raise(ParsingException(sprintf "Exception during parsing of %s" j, e))
                     let apidata = tryParse j
                     Api(apidata, cache, logger)
 
-    
     /// <summary>Builds URL specific to an application, based on a generic prismic.io document link.</summary>
-    type DocumentLinkResolver(f) = 
+    type DocumentLinkResolver(f) =
         /// <summary>Builds a document link resolver that will apply the function to document links.
         /// For C# users, there is an adapter, see prismic.extensions.DocumentLinkResolver</summary>
         /// <param name="f">the resolving strategy.</param>
@@ -230,12 +229,19 @@ module Api =
                                                    slug = document.slug;
                                                    isBroken = false; })
 
+    let to_option = function
+        | null -> None
+        | obj -> Some obj
 
-    let selectFromJson j map = 
+    type HtmlSerializer(f) =
+        static member For(f:Fragments.Element -> string option) = HtmlSerializer(f)
+        static member For(f:Fragments.Element -> string) = HtmlSerializer(fun elt -> f(elt) |> to_option)
+        static member Empty = HtmlSerializer(fun elt -> None)
+        member this.Apply(elt) = f(elt)
+
+    let selectFromJson j map =
            let parsed = JsonValue.Parse j
            map(parsed)
-
-
 
     let fetchPrismicJson cache logger (url:string) (token:string option) = async {
         let request = HttpWebRequest.Create(url) :?> HttpWebRequest
@@ -254,7 +260,7 @@ module Api =
         let! fetched = tryFetch(request)
         match fetched.statusCode with
             | HttpStatusCode.OK -> return Api.fromJson fetched.body cache logger
-            | HttpStatusCode.Unauthorized -> 
+            | HttpStatusCode.Unauthorized ->
                 let oauthurl = selectFromJson fetched.body (fun p -> p.TryGetProperty "oauth_initiate")
                 match oauthurl with
                     | Some(u) when token.IsNone -> return raise (AuthorizationNeeded("You need to provide an access token to access this repository", u.AsString()))
@@ -281,14 +287,12 @@ module Api =
     /// <param name="linkResolver">Resolves the links within the document.</param>
     /// <param name="fragment">Fragment to process.</param>
     /// <returns>The HTML.</returns>
-    let asHtml (linkResolver:DocumentLinkResolver) = FragmentsHtml.asHtml linkResolver.Apply
+    let asHtml (linkResolver:DocumentLinkResolver) (htmlSerializer:HtmlSerializer) = FragmentsHtml.asHtml linkResolver.Apply htmlSerializer.Apply
 
     /// <summary>Make HTML for a Document.</summary>
     /// <param name="linkResolver">Resolves the links within the document.</param>
     /// <param name="document">Document to process.</param>
     /// <returns>The HTML.</returns>
-    let documentAsHtml (linkResolver:DocumentLinkResolver) (document:Document) =
+    let documentAsHtml (linkResolver:DocumentLinkResolver) (htmlSerializer:HtmlSerializer) (document:Document) =
         let asGroupDoc = ({Fragments.GroupDoc.fragments = document.fragments}) |> Seq.singleton
-        FragmentsHtml.asHtml linkResolver.Apply (Fragments.Group(asGroupDoc))
-
-
+        FragmentsHtml.asHtml linkResolver.Apply htmlSerializer.Apply (Fragments.Group(asGroupDoc))

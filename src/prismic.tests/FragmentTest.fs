@@ -11,6 +11,7 @@ module FragmentTest =
 
     let await a = a |> Async.RunSynchronously
     let apiGetNoCache = Api.get (ApiInfra.NoCache() :> ApiInfra.ICache<Api.Response>) (ApiInfra.Logger.NoLogger)
+    let htmlSerializer = Api.HtmlSerializer.Empty
 
     [<TestFixture>]
     type ``Query Document and Parse Fragments``() =
@@ -44,7 +45,7 @@ module FragmentTest =
                             | Some(g) ->
                                 let linkresolver = Api.DocumentLinkResolver.For(fun l ->
                                     String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
-                                let html = Api.asHtml linkresolver g
+                                let html = Api.asHtml linkresolver htmlSerializer g
                                 Assert.AreEqual("""<section data-field="linktodoc"><a href="http://localhost/doc/UrDejAEAAFwMyrW9">installing-meta-micro</a></section>
 <section data-field="desc"><p>Just testing another field in a group section.</p></section>
 <section data-field="linktodoc"><a href="http://localhost/doc/UrDmKgEAALwMyrXA">using-meta-micro</a></section>""", html)
@@ -63,7 +64,7 @@ module FragmentTest =
                             | Some(g) ->
                                 let linkresolver = Api.DocumentLinkResolver.For(fun l ->
                                     String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
-                                let html = Api.asHtml linkresolver g
+                                let html = Api.asHtml linkresolver htmlSerializer g
                                 Assert.AreEqual("""<section data-field="linktodoc"><a href="http://localhost/doc/UrDofwEAALAdpbNH">with-jquery</a></section>
 <section data-field="linktodoc"><a href="http://localhost/doc/UrDp8AEAAPUdpbNL">with-bootstrap</a></section>""", html)
                             | _ -> Assert.Fail("Result is not of type group")
@@ -151,7 +152,7 @@ module FragmentTest =
                             | Some(g) ->
                                 let expected = """<div class="geopoint"><span class="latitude">48.87687670000001</span><span class="longitude">2.3338801999999825</span></div>"""
                                 let linkresolver = Api.DocumentLinkResolver.For(fun l -> String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
-                                Assert.AreEqual(expected, Api.asHtml linkresolver g)
+                                Assert.AreEqual(expected, Api.asHtml linkresolver htmlSerializer g)
                             | _ -> Assert.Fail("GeoPoint not found")
 
         [<Test>]
@@ -166,7 +167,7 @@ module FragmentTest =
                             | Some(e) ->
                                 let expected = """<div data-oembed="https://gist.github.com/srenault/71b4f1e62783c158f8af" data-oembed-type="rich" data-oembed-provider="github"><script src="https://gist.github.com/srenault/71b4f1e62783c158f8af.js"></script></div>"""
                                 let linkresolver = Api.DocumentLinkResolver.For(fun l -> String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
-                                Assert.AreEqual(expected, Api.asHtml linkresolver e)
+                                Assert.AreEqual(expected, Api.asHtml linkresolver htmlSerializer e)
                             | _ -> Assert.Fail("Ebed not found")
 
         [<Test>]
@@ -183,5 +184,5 @@ module FragmentTest =
 
             match tstamp with
                     | Some(ts) ->
-                        Assert.AreEqual("<time>2014-06-18 15:30:00</time>", Api.asHtml linkresolver ts)
+                        Assert.AreEqual("<time>2014-06-18 15:30:00</time>", Api.asHtml linkresolver htmlSerializer ts)
                     | _ -> Assert.Fail("Timestamp not found")

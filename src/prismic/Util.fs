@@ -25,19 +25,18 @@ module TupleList =
         list.Inner |> List.tryFind (fun (a, b) -> predicate a b) |> Option.map snd
     let allvalues (list:TupleList<'a, 'b>) =
         list.Inner |> List.map snd
-    let valueForKey key = value (fun k _ -> k = key) 
+    let valueForKey key = value (fun k _ -> k = key)
     let mapKeys (mapper:'a -> 'c) (list:TupleList<'a, 'b>) =
         list.Inner |> List.map (fun (a, b) -> (mapper a, b)) |> toTupleList
     let mapValues (mapper:'b -> 'c) (list:TupleList<'a, 'b>) =
         list.Inner |> List.map (fun (a, b) -> (a, mapper b)) |> toTupleList
-    let ofSeq sequence = 
+    let ofSeq sequence =
          sequence |> List.ofSeq |> toTupleList
-    let toMap (list:TupleList<'a, 'b>) = 
+    let toMap (list:TupleList<'a, 'b>) =
          list.Inner |> Map.ofList
-    let fold (folder:'s->('a*'b) ->'s) (state:'s) (list:TupleList<'a, 'b>) = 
-        list.Inner 
+    let fold (folder:'s->('a*'b) ->'s) (state:'s) (list:TupleList<'a, 'b>) =
+        list.Inner
         |> List.fold (fun s (a, b) -> folder s (a, b) ) state
     let add (k, v) (list:TupleList<'a, 'b>) = (k, v) :: list.Inner |> toTupleList
-    let set (k, v) (list:TupleList<'a, 'b>) = 
+    let set (k, v) (list:TupleList<'a, 'b>) =
         (k, v) :: (list.Inner |> List.filter(fun (a, b) -> a <> k)) |> toTupleList
-

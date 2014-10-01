@@ -5,7 +5,7 @@ open FSharp.Data
 open prismic
 
 [<TestFixture>]
-type LinkParsingTest() = 
+type LinkParsingTest() =
 
     let structured_text_linkfile = """{
   "type": "StructuredText",
@@ -79,7 +79,7 @@ type LinkParsingTest() =
   ]
 }"""
 
-    let linkresolver = Api.DocumentLinkResolver.For(fun l -> 
+    let linkresolver = Api.DocumentLinkResolver.For(fun l ->
                         String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
 
 
@@ -90,7 +90,5 @@ type LinkParsingTest() =
         let expected = """<p><a href="https://prismic-io.s3.amazonaws.com/annual.report.pdf">2012 Annual Report</a></p>
 <p><a href="https://prismic-io.s3.amazonaws.com/annual.budget.pdf">2012 Annual Budget</a></p>
 <p><a href="https://prismic-io.s3.amazonaws.com/vision.strategic.plan_.sm_.pdf">2015 Vision &amp; Strategic Plan</a></p>"""
-        let actual = fragment |> Option.map (fun f -> Api.asHtml linkresolver f) 
+        let actual = fragment |> Option.map (fun f -> Api.asHtml linkresolver Api.HtmlSerializer.Empty f) 
         Assert.AreEqual(Some(expected), actual)
-
-

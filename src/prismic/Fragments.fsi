@@ -39,7 +39,7 @@ module Fragments =
       | Text of Text
       | Image of ImageView
       | Embed of Embed
-    and StructuredText =
+    and Element =
       | Span of Span
       | Block of Block
     and Color =

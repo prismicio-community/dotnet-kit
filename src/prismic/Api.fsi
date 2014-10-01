@@ -114,6 +114,13 @@ module Api =
         /// <returns>a DocumentLinkResolver for the given strategy.</returns>
         static member For : api:Api * f:(Fragments.DocumentLink -> string option -> string) -> DocumentLinkResolver
 
+    type HtmlSerializer =
+        new: f:(Fragments.Element -> string option) -> HtmlSerializer
+        static member Empty: HtmlSerializer
+        static member For: f:(Fragments.Element -> string option) -> HtmlSerializer
+        static member For: f:(Fragments.Element -> string) -> HtmlSerializer
+        member Apply: Fragments.Element -> string option
+
     /// <summary>Fetches a response from the api for the given url and returns an Api.</summary>
     /// <param name="cache">Caches the responses according to their max-age.</param>
     /// <param name="logger">Logs the queries.</param>
@@ -128,11 +135,10 @@ module Api =
     /// <param name="linkResolver">Resolves the links within the document.</param>
     /// <param name="fragment">Fragment to process.</param>
     /// <returns>The HTML.</returns>
-    val asHtml : linkResolver:DocumentLinkResolver -> (Fragments.Fragment -> string)
-
+    val asHtml : linkResolver:DocumentLinkResolver -> htmlSerializer:HtmlSerializer -> (Fragments.Fragment -> string)
 
     /// <summary>Make HTML for a Document.</summary>
     /// <param name="linkResolver">Resolves the links within the document.</param>
     /// <param name="document">Document to process.</param>
     /// <returns>The HTML.</returns>
-    val documentAsHtml : linkResolver:DocumentLinkResolver -> document:Document -> string
+    val documentAsHtml : linkResolver:DocumentLinkResolver -> htmlSerializer:HtmlSerializer -> document:Document -> string

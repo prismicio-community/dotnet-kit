@@ -19,7 +19,7 @@ module FragmentsHtml =
             | Some (ImageLink(l)) -> String.Format("""<a href="{0}">{1}</a>""", l.url, imgTag)
             | _ -> imgTag
 
-    let rec asHtml (linkResolver:DocumentLink -> string) = function
+    let rec asHtml (linkResolver:DocumentLink -> string) (htmlSerializer:Fragments.Element -> string option) = function
                     | Link l -> match l with
                                 | WebLink (l) -> String.Format("""<a href="{0}">{0}</a>""", l.url)
                                 | MediaLink (l) -> String.Format("""<a href="{0}">{1}</a>""", l.url, l.filename)
@@ -40,7 +40,7 @@ module FragmentsHtml =
                     | Group g ->    let getHtml field fragmentMap =
                                         get field fragmentMap
                                             |> Option.bind (fun f ->
-                                                Some(asHtml linkResolver f))
+                                                Some(asHtml linkResolver htmlSerializer f))
                                     let groupDocsHtml groupDoc =
                                         let resolve field =
                                             getHtml field groupDoc <?- ""
@@ -141,6 +141,6 @@ module FragmentsHtml =
                                 |> String.concat "\n"
 
 
-    let getHtml linkResolver field fragmentMap =
+    let getHtml linkResolver htmlSerializer field fragmentMap =
         get field fragmentMap
-            |> Option.bind (fun f -> Some(asHtml linkResolver f))
+            |> Option.bind (fun f -> Some(asHtml linkResolver htmlSerializer f))
