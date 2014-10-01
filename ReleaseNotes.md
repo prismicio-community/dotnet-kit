@@ -35,6 +35,6 @@
 * Add support for Links in images
 * Add support for span and group labels
 
-### New in 1.0.9 (Release 2014/09/30)
+### New in 1.0.10 (Release 2014/09/30)
 * Fix parsing for Links in images
 
