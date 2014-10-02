@@ -83,8 +83,9 @@ module FragmentTest =
                         String.Format("""http://localhost/{0}/{1}""", l.typ, l.id))
                     let customSerializer = Api.HtmlSerializer.For(fun (elt) (content) ->
                         match elt with
-                            | Span(Span.Hyperlink(_, _, Link.DocumentLink(l)))
-                                -> Some(String.Format("""<a class="some-link" href="{0}">{1}</a>""", linkresolver.Apply l, content))
+                            | Span(Span.Hyperlink(_, _, Link.DocumentLink(l))) ->
+                                Some(String.Format("""<a class="some-link" href="{0}">{1}</a>""", linkresolver.Apply l, content))
+                            | Block(Block.Image(view)) -> Some(imageViewAsHtml linkresolver.Apply view)
                             | _ -> None
                     )
                     let html = Api.asHtml linkresolver customSerializer c
@@ -94,7 +95,7 @@ module FragmentTest =
 <p>In 1992, the first Les Bonnes Choses store opened on rue Saint-Lazare, in Paris (<a class="some-link" href="http://localhost/store/UlfoxUnM0wkXYXbb">we&#39;re still there!</a>), much to everyone&#39;s surprise; indeed, back then, it was very surprising for a highly promising young man with a preordained career as a restaurant chef, to open a pastry shop instead. But soon enough, contemporary chefs understood that Jean-Michel had the drive to redefine a new nobility to pastry, the same way many other kinds of cuisine were being qualified as &quot;fine&quot;.</p>
 <p>In 1996, meeting an overwhelming demand, Jean-Michel Pastranova opened <a class="some-link" href="http://localhost/store/UlfoxUnM0wkXYXbP">a second shop on Paris&#39;s Champs-&#201;lys&#233;es</a>, and <a class="some-link" href="http://localhost/store/UlfoxUnM0wkXYXbr">a third one in London</a>, the same week! Eventually, Les Bonnes Choses gained an international reputation as &quot;a perfection so familiar and new at the same time, that it will feel like a taste travel&quot; (New York Gazette), &quot;the finest balance between surprise and comfort, enveloped in sweetness&quot; (The Tokyo Tribune), &quot;a renewal of the pastry genre (...), the kind that changed the way pastry is approached globally&quot; (The San Francisco Gourmet News). Therefore, it was only a matter of time before Les Bonnes Choses opened shops in <a class="some-link" href="http://localhost/store/UlfoxUnM0wkXYXbc">New York</a> (2000) and <a class="some-link" href="http://localhost/store/UlfoxUnM0wkXYXbU">Tokyo</a> (2004).</p>
 <p>In 2013, Jean-Michel Pastranova stepped down as the CEO and Director of Workshops, remaining a senior advisor to the board and to the workshop artists; he passed the light on to Selena, his daugther, who initially learned the art of pastry from him. Passion for great food runs in the Pastranova family...</p>
-<p class="block-img"><img alt="" src="https://prismic-io.s3.amazonaws.com/lesbonneschoses/df6c1d87258a5bfadf3479b163fd85c829a5c0b8.jpg" width="800" height="533" /></p>
+<img alt="" src="https://prismic-io.s3.amazonaws.com/lesbonneschoses/df6c1d87258a5bfadf3479b163fd85c829a5c0b8.jpg" width="800" height="533" />
 <h2>Our main value: our customers&#39; delight</h2>
 <p>Our every action is driven by the firm belief that there is art in pastry, and that this art is one of the dearest pleasures one can experience.</p>
 <p>At Les Bonnes Choses, people preparing your macarons are not simply &quot;pastry chefs&quot;: they are &quot;<a class="some-link" href="http://localhost/job-offer/UlfoxUnM0wkXYXba">ganache specialists</a>&quot;, &quot;<a class="some-link" href="http://localhost/job-offer/UlfoxUnM0wkXYXbQ">fruit experts</a>&quot;, or &quot;<a class="some-link" href="http://localhost/job-offer/UlfoxUnM0wkXYXbn">oven instrumentalists</a>&quot;. They are the best people out there to perform the tasks they perform to create your pastry, giving it the greatest value. And they just love to make their specialized pastry skill better and better until perfection.</p>

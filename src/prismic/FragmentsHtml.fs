@@ -114,7 +114,7 @@ module FragmentsHtml =
                                 match label with
                                     | Some(l) -> String.Format(" class=\"{0}\"", l)
                                     | _ -> ""
-                            let blockAsHtml = function
+                            let blockAsHtmlDefault (body:string) = function
                                     | Block.Text(Text.Heading(text, spans, level, label)) ->
                                         String.Format("""<h{0}{1}>{2}</h{0}>""", level, classCode label, textspanAsHtml text spans)
                                     | Block.Text(Text.Paragraph(text, spans, label)) ->
@@ -126,6 +126,20 @@ module FragmentsHtml =
                                     | Block.Image(view) ->
                                         String.Format("""<p class="block-img">{0}</p>""", imageViewAsHtml linkResolver view)
                                     | Block.Embed(embed) -> embedAsHtml embed
+                            let blockAsHtml (elt:Block): string =
+                                let body = match elt with
+                                            | Block.Text(Text.Heading(text, spans, level, label)) ->
+                                                textspanAsHtml text spans
+                                            | Block.Text(Text.Paragraph(text, spans, label)) ->
+                                                textspanAsHtml text spans
+                                            | Block.Text(Text.Preformatted(text, spans, label)) ->
+                                                textspanAsHtml text spans
+                                            | Block.Text(Text.ListItem(text, spans, _, label)) ->
+                                                textspanAsHtml text spans
+                                            | _ -> ""
+                                match (htmlSerializer (Element.Block(elt)) body) with
+                                    | Some(html) -> html
+                                    | _ -> blockAsHtmlDefault body elt
 
                             t   |> Seq.toList |> List.fold (fun s b ->
                                     match (s, b) with
