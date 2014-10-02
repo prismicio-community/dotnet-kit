@@ -127,7 +127,7 @@ namespace prismic.extensions
 		/// <summary>Builds a document link resolver that will apply the function to document links.</summary>
 		/// <param name="f">the resolving strategy.</param>
 		/// <returns>a DocumentLinkResolver for the given strategy.</returns>
-		public static prismic.Api.HtmlSerializer For(System.Func<Fragments.Element, string, string> serializer)
+		public static prismic.Api.HtmlSerializer For(System.Func<Object, string, string> serializer)
 		{
 			return prismic.Api.HtmlSerializer.For(CSharpAdapters.CreateFunc(serializer));
 		}
@@ -563,6 +563,16 @@ namespace prismic.extensions
 			return OptionModule.Map(map, imageView);
 		}
 
+		/// <summary>
+		/// Tries to return HTML from an image view
+		/// </summary>
+		/// <returns>The html.</returns>
+		/// <param name="imageView">Image view.</param>
+		public static string AsHtml(this Fragments.ImageView imageView, prismic.Api.DocumentLinkResolver linkResolver)
+		{
+			var applyResolver = CSharpAdapters.CreateFunc<Fragments.DocumentLink, string> (l => linkResolver.Apply (l));
+			return FragmentsHtml.imageViewAsHtml (applyResolver, imageView);
+		}
 
 		/// <summary>
 		/// Tries to return HTML from a document, given the link resolver.

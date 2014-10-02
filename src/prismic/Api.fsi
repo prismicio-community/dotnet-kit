@@ -118,7 +118,8 @@ module Api =
         new: f:(Fragments.Element -> string -> string option) -> HtmlSerializer
         static member Empty: HtmlSerializer
         static member For: f:(Fragments.Element -> string -> string option) -> HtmlSerializer
-        static member For: f:(Fragments.Element -> string -> string) -> HtmlSerializer
+        // For C# compatibility
+        static member For: f:(System.Object -> string -> string) -> HtmlSerializer
         member Apply: Fragments.Element -> string -> string option
 
     /// <summary>Fetches a response from the api for the given url and returns an Api.</summary>

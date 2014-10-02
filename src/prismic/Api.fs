@@ -235,7 +235,12 @@ module Api =
 
     type HtmlSerializer(f) =
         static member For(f:Fragments.Element -> string -> string option) = HtmlSerializer(f)
-        static member For(f:Fragments.Element -> string -> string) = HtmlSerializer(fun content elt -> (f content elt) |> to_option)
+        static member For(f:System.Object -> string -> string) =
+            HtmlSerializer(fun content elt ->
+                match content with
+                    | Fragments.Span(span) -> (f span elt) |> to_option
+                    | Fragments.Block(block) -> (f block elt) |> to_option
+            )
         static member Empty = HtmlSerializer(fun elt content -> None)
         member this.Apply elt content = f elt content
 
