@@ -115,11 +115,11 @@ module Api =
         static member For : api:Api * f:(Fragments.DocumentLink -> string option -> string) -> DocumentLinkResolver
 
     type HtmlSerializer =
-        new: f:(Fragments.Element -> string option) -> HtmlSerializer
+        new: f:(Fragments.Element -> string -> string option) -> HtmlSerializer
         static member Empty: HtmlSerializer
-        static member For: f:(Fragments.Element -> string option) -> HtmlSerializer
-        static member For: f:(Fragments.Element -> string) -> HtmlSerializer
-        member Apply: Fragments.Element -> string option
+        static member For: f:(Fragments.Element -> string -> string option) -> HtmlSerializer
+        static member For: f:(Fragments.Element -> string -> string) -> HtmlSerializer
+        member Apply: Fragments.Element -> string -> string option
 
     /// <summary>Fetches a response from the api for the given url and returns an Api.</summary>
     /// <param name="cache">Caches the responses according to their max-age.</param>

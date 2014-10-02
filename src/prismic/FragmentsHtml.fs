@@ -24,7 +24,7 @@ module FragmentsHtml =
             | Some (ImageLink(l)) -> String.Format("""<a href="{0}">{1}</a>""", l.url, imgTag)
             | _ -> imgTag
 
-    let rec asHtml (linkResolver:DocumentLink -> string) (htmlSerializer:Fragments.Element -> string option) = function
+    let rec asHtml (linkResolver:DocumentLink -> string) (htmlSerializer:(Element -> string -> string option)) = function
                     | Link l -> match l with
                                 | WebLink (l) -> String.Format("""<a href="{0}">{0}</a>""", l.url)
                                 | MediaLink (l) -> String.Format("""<a href="{0}">{1}</a>""", l.url, l.filename)
@@ -72,6 +72,10 @@ module FragmentsHtml =
                                                         -> String.Format("""<a href="{0}">{1}</a>""", l.url, body)
                                                     | Span.Hyperlink(_, _, Link.ImageLink(l))
                                                         -> String.Format("""<a href="{0}">{1}</a>""", l.url, body)
+                                let spanHtml (body: string) (elt: Span) =
+                                    match (htmlSerializer (Element.Span(elt)) body) with
+                                        | Some(html) -> html
+                                        | _ -> writeTag body elt
                                 let spanStart = function Span.Em(start, _) | Span.Strong(start, _) | Span.Hyperlink(start, _, _) | Span.Label(start, _, _) -> start
                                 let spanEnd = function Span.Em(_, end') | Span.Strong(_, end') | Span.Hyperlink(_, end', _) | Span.Label(_, end', _) -> end'
                                 let spanLength = function Span.Em(start, end') | Span.Strong(start, end') | Span.Hyperlink(start, end', _) | Span.Label(start, end', _) -> end' - start
@@ -80,7 +84,7 @@ module FragmentsHtml =
                                         | (_, pos) :: tail when (stack |> List.length > 0) && (spanEnd (stack |> List.head).span = pos) ->
                                             // Need to close a tag
                                             let tag = stack |> List.head
-                                            let tagHtml = writeTag tag.spanContent tag.span
+                                            let tagHtml = spanHtml tag.spanContent tag.span
                                             let stackTail = stack |> List.tail
                                             match stackTail with
                                                 | h :: t -> step in' spans ({ span=h.span; spanContent=h.spanContent + tagHtml} :: t) html
@@ -97,7 +101,7 @@ module FragmentsHtml =
                                                 | h :: t -> step tail spans ({span=h.span; spanContent=h.spanContent + encoded} :: t) html
                                         | [] when List.length(stack) > 0 ->
                                             let tag = stack |> List.head
-                                            let tagHtml = writeTag tag.spanContent tag.span
+                                            let tagHtml = spanHtml tag.spanContent tag.span
                                             let stackTail = List.tail(stack)
                                             match stackTail with
                                                 | h :: t -> step in' spans ({ span=h.span; spanContent=h.spanContent + tagHtml} :: t) html

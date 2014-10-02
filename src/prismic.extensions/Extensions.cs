@@ -127,7 +127,7 @@ namespace prismic.extensions
 		/// <summary>Builds a document link resolver that will apply the function to document links.</summary>
 		/// <param name="f">the resolving strategy.</param>
 		/// <returns>a DocumentLinkResolver for the given strategy.</returns>
-		public static prismic.Api.HtmlSerializer For(System.Func<Fragments.Element, string> serializer)
+		public static prismic.Api.HtmlSerializer For(System.Func<Fragments.Element, string, string> serializer)
 		{
 			return prismic.Api.HtmlSerializer.For(CSharpAdapters.CreateFunc(serializer));
 		}
@@ -524,7 +524,7 @@ namespace prismic.extensions
 		{
 			var applyResolver = CSharpAdapters.CreateFunc<Fragments.DocumentLink, string> (l => linkResolver.Apply (l));
 			if (htmlSerializer == null) htmlSerializer = prismic.Api.HtmlSerializer.Empty;
-			var applySerializer = CSharpAdapters.CreateFunc<Fragments.Element, FSharpOption<string>> (l => htmlSerializer.Apply (l));
+			var applySerializer = CSharpAdapters.CreateFunc<Fragments.Element, string, FSharpOption<string>> ((l, c) => htmlSerializer.Apply (l, c));
 			var map = CSharpAdapters.CreateFunc<T, string> (f => FragmentsHtml.asHtml (applyResolver, applySerializer, f));
 			return OptionModule.Map(map, fragment);
 		}
@@ -540,7 +540,7 @@ namespace prismic.extensions
 		{
 			var applyResolver = CSharpAdapters.CreateFunc<Fragments.DocumentLink, string> (l => linkResolver.Apply (l));
 			if (htmlSerializer == null) htmlSerializer = prismic.Api.HtmlSerializer.Empty;
-			var applySerializer = CSharpAdapters.CreateFunc<Fragments.Element, FSharpOption<string>> (l => htmlSerializer.Apply (l));
+			var applySerializer = CSharpAdapters.CreateFunc<Fragments.Element, string, FSharpOption<string>> ((l, c) => htmlSerializer.Apply (l, c));
 			return FragmentsHtml.asHtml (applyResolver, applySerializer, fragment);
 		}
 		/*

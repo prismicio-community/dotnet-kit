@@ -234,10 +234,10 @@ module Api =
         | obj -> Some obj
 
     type HtmlSerializer(f) =
-        static member For(f:Fragments.Element -> string option) = HtmlSerializer(f)
-        static member For(f:Fragments.Element -> string) = HtmlSerializer(fun elt -> f(elt) |> to_option)
-        static member Empty = HtmlSerializer(fun elt -> None)
-        member this.Apply(elt) = f(elt)
+        static member For(f:Fragments.Element -> string -> string option) = HtmlSerializer(f)
+        static member For(f:Fragments.Element -> string -> string) = HtmlSerializer(fun content elt -> (f content elt) |> to_option)
+        static member Empty = HtmlSerializer(fun elt content -> None)
+        member this.Apply elt content = f elt content
 
     let selectFromJson j map =
            let parsed = JsonValue.Parse j
@@ -295,4 +295,5 @@ module Api =
     /// <returns>The HTML.</returns>
     let documentAsHtml (linkResolver:DocumentLinkResolver) (htmlSerializer:HtmlSerializer) (document:Document) =
         let asGroupDoc = ({Fragments.GroupDoc.fragments = document.fragments}) |> Seq.singleton
-        FragmentsHtml.asHtml linkResolver.Apply htmlSerializer.Apply (Fragments.Group(asGroupDoc))
+        let serializerApply: Fragments.Element -> string -> string option = htmlSerializer.Apply
+        FragmentsHtml.asHtml linkResolver.Apply serializerApply (Fragments.Group(asGroupDoc))
