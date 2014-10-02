@@ -10,6 +10,11 @@ module FragmentsHtml =
 
     type GroupTags = GroupTags of (string option * Block list)
 
+    type OpenSpan = {
+        span: Span;
+        spanContent: string;
+    }
+
     let imageViewAsHtml (linkResolver:DocumentLink -> string) (view:ImageView) =
         let imgTag = String.Format("""<img alt="{0}" src="{1}" width="{2}" height="{3}" />""", (defaultArg (view.alt) ""), view.url, view.width, view.height)
         match view.linkTo with
@@ -55,54 +60,53 @@ module FragmentsHtml =
                                             String.Format("""<div data-oembed="{0}" data-oembed-type="{1}" data-oembed-provider="{2}">{3}</div>""",
                                                 e.url, e.typ.ToLowerInvariant(), e.provider.ToLowerInvariant(), h)) String.Empty
                             let textspanAsHtml (text:string) (spans:Span seq) =
-                                let writeTag opening = function
-                                                        | Span.Em(_, _) -> if opening then "<em>" else "</em>"
-                                                        | Span.Strong(_, _) -> if opening then "<strong>" else "</strong>"
-                                                        | Span.Label(_, _, label) -> if opening then String.Format("""<span class="{0}">""", label) else "</span>"
-                                                        | Span.Hyperlink(_, _, Link.DocumentLink(l))
-                                                            -> if opening then String.Format("""<a href="{0}">""", linkResolver l) else "</a>"
-                                                        | Span.Hyperlink(_, _, Link.MediaLink(l))
-                                                            -> if opening then String.Format("""<a href="{0}">""", l.url) else "</a>"
-                                                        | Span.Hyperlink(_, _, Link.WebLink(l))
-                                                            -> if opening then String.Format("""<a href="{0}">""", l.url) else "</a>"
-                                                        | Span.Hyperlink(_, _, Link.ImageLink(l))
-                                                            -> if opening then String.Format("""<a href="{0}">""", l.url) else "</a>"
-                                let writeHtml endingsToApply startingsToApply =
-                                    let e = endingsToApply
-                                            |> Seq.map (fun e -> writeTag false e)
-                                            |> String.concat "\n"
-                                    let s = startingsToApply
-                                            |> Seq.map (fun e -> writeTag true e)
-                                            |> String.concat "\n"
-                                    String.Format("{0}{1}", e, s)
+                                let writeTag (body:string) = function
+                                                    | Span.Em(_, _) -> String.Format("<em>{0}</em>", body)
+                                                    | Span.Strong(_, _) -> String.Format("<strong>{0}</strong>", body)
+                                                    | Span.Label(_, _, label) -> String.Format("""<span class="{0}">{1}</span>""", label, body)
+                                                    | Span.Hyperlink(_, _, Link.DocumentLink(l))
+                                                        -> String.Format("""<a href="{0}">{1}</a>""", linkResolver l, body)
+                                                    | Span.Hyperlink(_, _, Link.MediaLink(l))
+                                                        -> String.Format("""<a href="{0}">{1}</a>""", l.url, body)
+                                                    | Span.Hyperlink(_, _, Link.WebLink(l))
+                                                        -> String.Format("""<a href="{0}">{1}</a>""", l.url, body)
+                                                    | Span.Hyperlink(_, _, Link.ImageLink(l))
+                                                        -> String.Format("""<a href="{0}">{1}</a>""", l.url, body)
+                                //let writeHtml endingsToApply startingsToApply =
+                                //    let e = endingsToApply
+                                //            |> Seq.map (fun e -> writeTag false e)
+                                //            |> String.concat "\n"
+                                //    let s = startingsToApply
+                                //            |> Seq.map (fun e -> writeTag true e)
+                                //            |> String.concat "\n"
+                                //    String.Format("{0}{1}", e, s)
                                 let spanStart = function Span.Em(start, _) | Span.Strong(start, _) | Span.Hyperlink(start, _, _) | Span.Label(start, _, _) -> start
                                 let spanEnd = function Span.Em(_, end') | Span.Strong(_, end') | Span.Hyperlink(_, end', _) | Span.Label(_, end', _) -> end'
-                                let rec step in' (startings:Span list) (endings:Span list) (html:hlist<string>) =
-                                    // get the min of 2 options
-                                    let (<-->) (a:int option) b = [a ; b] |> List.choose id |> function [] -> None | x -> Some(List.min x)
-                                    let nextOp =
-                                        startings
-                                            |> seqheadoption
-                                            |> Option.map spanStart
-                                        <--> (endings
-                                                |> seqheadoption
-                                                |> Option.map spanEnd)
+                                let spanLength = function Span.Em(start, end') | Span.Strong(start, end') | Span.Hyperlink(start, end', _) | Span.Label(start, end', _) -> end' - start
+                                let rec step in' (spans:Span list) (stack:OpenSpan list) (html:string) =
                                     match in' with
-                                        (_, pos) :: tail when not (nextOp |> Option.exists (fun op -> op = pos))
-                                            ->  let (done', todo) = in' |> span (fun (_,i) -> not (nextOp |> Option.exists (fun op -> op = i)))
-                                                let consHtml = html =@ htmlEncode(System.String(done' |> List.map(fun (c, i) -> c) |> List.toArray))
-                                                step todo startings endings consHtml
+                                        | (_, pos) :: tail when (stack |> List.length > 0) && (spanEnd (stack |> List.head).span = pos) ->
+                                            // Need to close a tag
+                                            let tag = stack |> List.head
+                                            let tagHtml = writeTag tag.spanContent tag.span
+                                            let stackTail = stack |> List.tail
+                                            match stackTail with
+                                                | h :: t -> step in' spans ({ span=h.span; spanContent=h.spanContent + tagHtml} :: t) html
+                                                | [] -> step in' spans stackTail (html + tagHtml)
+                                        | (_, pos) :: tail when (spans |> List.length > 0) && (spanStart (spans |> List.head) = pos) ->
+                                            // Need to open a tag
+                                            let h = spans |> List.head
+                                            let t = spans |> List.tail
+                                            step in' t ({ span=h; spanContent=""} :: stack) html
                                         | (current, pos) :: tail ->
-                                                let (endingsToApply, othersEnding) = endings |> span (fun s -> spanEnd s = pos)
-                                                let (startingsToApply, othersStarting) = startings |> span (fun s -> spanStart s = pos)
-                                                let applied = String.Format("{0}{1}", writeHtml endingsToApply startingsToApply, htmlEncode(current.ToString()))
-                                                let moreEndings = startingsToApply |> List.rev
-                                                let newEndings = List.append moreEndings othersEnding
-                                                let consHtml = html =@ applied
-                                                step tail othersStarting newEndings consHtml
-                                        | _ -> String.Format("{0}{1}", html |> toList |> String.Concat, writeHtml endings List.Empty)
+                                            let encoded = htmlEncode(current.ToString())
+                                            match stack with
+                                                | [] -> step tail spans stack (html + encoded)
+                                                | h :: t -> step tail spans ({span=h.span; spanContent=h.spanContent + encoded} :: t) html
+                                        | [] -> html
                                 let inText = text.ToCharArray() |> Array.mapi (fun i t -> (t, i)) |> Array.toList
-                                step inText (spans |> Seq.sortBy spanStart |> Seq.toList) List.Empty (empty)
+                                // This works because Seq.sortBy is stable, e.g. spans with the same spanStart will retain their original ordering (by length)
+                                step inText (spans |> Seq.sortBy spanLength |> Seq.sortBy spanStart |> Seq.toList) List.Empty ""
                             let classCode (label: string option) =
                                 match label with
                                     | Some(l) -> String.Format(" class=\"{0}\"", l)
