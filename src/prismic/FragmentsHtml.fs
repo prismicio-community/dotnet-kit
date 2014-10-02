@@ -72,14 +72,6 @@ module FragmentsHtml =
                                                         -> String.Format("""<a href="{0}">{1}</a>""", l.url, body)
                                                     | Span.Hyperlink(_, _, Link.ImageLink(l))
                                                         -> String.Format("""<a href="{0}">{1}</a>""", l.url, body)
-                                //let writeHtml endingsToApply startingsToApply =
-                                //    let e = endingsToApply
-                                //            |> Seq.map (fun e -> writeTag false e)
-                                //            |> String.concat "\n"
-                                //    let s = startingsToApply
-                                //            |> Seq.map (fun e -> writeTag true e)
-                                //            |> String.concat "\n"
-                                //    String.Format("{0}{1}", e, s)
                                 let spanStart = function Span.Em(start, _) | Span.Strong(start, _) | Span.Hyperlink(start, _, _) | Span.Label(start, _, _) -> start
                                 let spanEnd = function Span.Em(_, end') | Span.Strong(_, end') | Span.Hyperlink(_, end', _) | Span.Label(_, end', _) -> end'
                                 let spanLength = function Span.Em(start, end') | Span.Strong(start, end') | Span.Hyperlink(start, end', _) | Span.Label(start, end', _) -> end' - start
@@ -103,7 +95,14 @@ module FragmentsHtml =
                                             match stack with
                                                 | [] -> step tail spans stack (html + encoded)
                                                 | h :: t -> step tail spans ({span=h.span; spanContent=h.spanContent + encoded} :: t) html
-                                        | [] -> html
+                                        | [] when List.length(stack) > 0 ->
+                                            let tag = stack |> List.head
+                                            let tagHtml = writeTag tag.spanContent tag.span
+                                            let stackTail = List.tail(stack)
+                                            match stackTail with
+                                                | h :: t -> step in' spans ({ span=h.span; spanContent=h.spanContent + tagHtml} :: t) html
+                                                | [] -> step in' spans stackTail (html + tagHtml)
+                                        | _ -> html
                                 let inText = text.ToCharArray() |> Array.mapi (fun i t -> (t, i)) |> Array.toList
                                 // This works because Seq.sortBy is stable, e.g. spans with the same spanStart will retain their original ordering (by length)
                                 step inText (spans |> Seq.sortBy spanLength |> Seq.sortBy spanStart |> Seq.toList) List.Empty ""

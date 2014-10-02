@@ -70,7 +70,6 @@ module FragmentTest =
                             | _ -> Assert.Fail("Result is not of type group")
 
 
-
         [<Test>]
         member x.``Should Access Media Link``() =
             let url = "https://test-public.prismic.io/api"
