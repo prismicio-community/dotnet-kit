@@ -11,3 +11,6 @@ src/nuget/packaging/
 #MonoDevelop
 *.pidb
 *.userprefs
+
+node_modules/
+

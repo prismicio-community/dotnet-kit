@@ -41,3 +41,7 @@
 ### New in 1.0.11 (Release 2014/10/01)
 * Add support for h5 and h6
 
+### New in 1.1.0 (Release 2014/10/02)
+* BREAKING CHANGE: In F#, the signature of asHtml and related functions have changed as we introduced the HtmlSerializer. If you don't need to generate custom HTML, just pass HtmlSerializer.Empty. The signature in C# should be unchanged.
+* Add support for HtmlSerializer, to control the generated HTML from asHtml
+ 

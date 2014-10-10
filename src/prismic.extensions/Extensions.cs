@@ -18,6 +18,27 @@ namespace prismic.extensions
 		/// Get the API at a specified url, given a cache and logger.
 		/// </summary>
 		/// <param name="url">URL.</param>
+		public static Task<prismic.Api.Api> Get(string url)
+		{
+			return Get (url, new prismic.ApiInfra.NoCache<prismic.Api.Response> (), (l, m) => {
+			});
+		}
+
+		/// <summary>
+		/// Get the API at a specified url, given an authentication token, a cache and logger.
+		/// </summary>
+		/// <param name="token">Token.</param>
+		/// <param name="url">URL.</param>
+		public static Task<prismic.Api.Api> Get(string token, string url)
+		{
+			return Get (token, url, new prismic.ApiInfra.NoCache<prismic.Api.Response> (), (l, m) => {
+			});
+		}
+
+		/// <summary>
+		/// Get the API at a specified url, given a cache and logger.
+		/// </summary>
+		/// <param name="url">URL.</param>
 		/// <param name="cache">Cache.</param>
 		/// <param name="logger">Logger.</param>
 		public static Task<prismic.Api.Api> Get(string url, prismic.ApiInfra.ICache<prismic.Api.Response> cache, Action<string, string> logger)
