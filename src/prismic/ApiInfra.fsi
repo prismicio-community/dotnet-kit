@@ -9,7 +9,12 @@ module ApiInfra =
         /// key, value, expiration time (now + max-age)
         abstract member Set: string -> 'a -> System.DateTimeOffset -> unit
         abstract member Get: string -> 'a option
-    
+
+    /// Cache with lambdas for easy creation
+    type Cache<'a> =
+        new: set: (string -> 'a -> System.DateTimeOffset -> unit) * get: (string -> ('a option)) -> Cache<'a>
+        interface ICache<'a>
+
     /// Can be used when no cache is wanted
     type NoCache<'a> = 
         new : unit -> NoCache<'a>
@@ -19,7 +24,6 @@ module ApiInfra =
     type SimpleCache<'a> = 
         new : int -> SimpleCache<'a>
         interface ICache<'a> 
-
 
     /// Provides a no logger 
     type Logger =

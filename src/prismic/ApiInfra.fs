@@ -16,7 +16,12 @@ module ApiInfra =
         /// key, value, expiration time (now + max-age)
         abstract member Set: string -> 'a-> System.DateTimeOffset -> unit
         abstract member Get: string -> 'a option
-       
+
+    type Cache<'a>(set: string -> 'a -> System.DateTimeOffset -> unit, get: string -> ('a option)) =
+        interface ICache<'a> with
+            member this.Set key value expiration = (set key value expiration)
+            member this.Get key = (get key)
+
     /// Can be used when no cache is wanted
     type NoCache<'a> () =
        interface ICache<'a> with
@@ -57,8 +62,5 @@ module ApiInfra =
                         cache.TryRemove(key) |> ignore
                         None
                     | (false, _) -> None
-
-                
-
 
 

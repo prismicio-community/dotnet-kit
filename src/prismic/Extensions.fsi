@@ -23,7 +23,7 @@ open prismic
         static member CreateFunc : func:System.Func<'a,'b> -> ('a -> 'b)
         static member CreateFunc : func:System.Func<'a,'b,'c> -> ('a -> 'b -> 'c)
         static member CreateFunc : func:System.Func<'a,'b,'c,'d> -> ('a -> 'b -> 'c -> 'd)
- 
+
 
         [<Extension>]
         static member Exists : opt: 'a option -> bool

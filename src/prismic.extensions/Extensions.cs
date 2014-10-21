@@ -154,6 +154,28 @@ namespace prismic.extensions
 		}
 	}
 
+	public static class Cache
+	{
+		public static prismic.ApiInfra.ICache<A> For<A>(System.Func<string, A, System.DateTimeOffset, object> set, System.Func<string, A> get) {
+			System.Func<string, FSharpOption<A>> optionGet = (key) => {
+				var value = get (key);
+				if (key == null) {
+					return FSharpOption<A>.None;
+				} else {
+					return FSharpOption<A>.Some (value);
+				}
+			};
+			System.Func<string, A, System.DateTimeOffset, Unit> unitSet = (key, value, ttl) => {
+				set(key, value, ttl);
+				return (Unit)Activator.CreateInstance(typeof(Unit), true);
+			};
+			return new prismic.ApiInfra.Cache<A>(
+				CSharpAdapters.CreateFunc(unitSet),
+				CSharpAdapters.CreateFunc(optionGet)
+			);
+		}
+	}
+
 	public static class FragmentsExtensions
 	{
 		public static FSharpOption<Fragments.Text> GetTitle(this Fragments.Fragment fragment)
@@ -193,6 +215,11 @@ namespace prismic.extensions
 		public static FSharpOption<Fragments.Fragment.Image> GetImage(this Fragments.GroupDoc document, string field)
 		{
 			return document.fragments.GetImage (field);
+		}
+
+		public static FSharpOption<Fragments.Fragment.Embed> GetEmbed(this Fragments.GroupDoc document, string field)
+		{
+			return document.fragments.GetEmbed (field);
 		}
 
 		public static IEnumerable<Fragments.Fragment.Image> GetAllImages(this Fragments.GroupDoc document, string field)
@@ -240,6 +267,10 @@ namespace prismic.extensions
 			return document.fragments.GetTimestamp (field);
 		}
 
+		public static FSharpOption<Fragments.Fragment.GeoPoint> GetGeoPoint(this Fragments.GroupDoc document, string field)
+		{
+			return document.fragments.GetGeoPoint (field);
+		}
 
 		public static bool GetBoolean(this Fragments.GroupDoc document, string field)
 		{
@@ -268,9 +299,19 @@ namespace prismic.extensions
 			return document.fragments.GetLink (field);
 		}
 
+		public static FSharpOption<Fragments.Fragment.Embed> GetEmbed(this prismic.Api.Document document, string field)
+		{
+			return document.fragments.GetEmbed (field);
+		}
+
 		public static FSharpOption<Fragments.Fragment.Image> GetImage(this prismic.Api.Document document, string field)
 		{
 			return document.fragments.GetImage (field);
+		}
+
+		public static FSharpOption<Fragments.Fragment.GeoPoint> GetGeoPoint(this prismic.Api.Document document, string field)
+		{
+			return document.fragments.GetGeoPoint (field);
 		}
 
 		public static IEnumerable<Fragments.Fragment.Image> GetAllImages(this prismic.Api.Document document, string field)
@@ -493,7 +534,24 @@ namespace prismic.extensions
 				: FSharpOption<Fragments.WebLink>.None);
 			return OptionModule.Bind (map, link);
 		}
-
+		/// <summary>
+		/// Get the URL of the link
+		/// </summary>
+		/// <returns>the url.</returns>
+		/// <param name="link">Maybe a Link.</param>
+		public static String GetUrl(this Fragments.Fragment.Link link, prismic.Api.DocumentLinkResolver linkResolver)
+		{
+			if (link.Item.IsWebLink) {
+				return ((Fragments.Link.WebLink)link.Item).Item.url;
+			}
+			if (link.Item.IsMediaLink) {
+				return ((Fragments.Link.MediaLink)link.Item).Item.url;
+			}
+			if (link.Item.IsDocumentLink) {
+				return linkResolver.Apply(((Fragments.Link.DocumentLink)link.Item).Item);
+			}
+			return null;
+		}
 		/// <summary>
 		/// Extracts a media link, if there is some, from a fragment, if there is some.
 		/// </summary>
