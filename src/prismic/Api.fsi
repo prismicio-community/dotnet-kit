@@ -1,5 +1,6 @@
 ﻿namespace prismic
 open FSharp.Data
+open Experiments
 
 /// Signature file for the Api module
 module Api =
@@ -49,6 +50,7 @@ module Api =
         types: Map<string,string>;
         tags: seq<string>;
         forms: TupleList<string, Form>;
+        experiments: Experiments;
         oauthEndpoints: string * string; }
 
     type LinkedDocument = { id: string; typ:string; slug: string option; tags: string seq }

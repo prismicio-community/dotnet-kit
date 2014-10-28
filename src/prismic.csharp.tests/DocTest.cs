@@ -331,7 +331,7 @@ namespace prismic.csharp.tests
 					return null;
 				}
 			);
-			// ThIS Api will use the custom cache object
+			// This Api will use the custom cache object
 			var api = prismic.extensions.Api.Get("https://lesbonneschoses.prismic.io/api", cache, null);
 			// endgist
 		}

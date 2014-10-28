@@ -5,6 +5,7 @@ open FSharp.Data.JsonExtensions
 open System.Net
 open Shortcuts
 open FragmentsParsers
+open Experiments
 
 module Api =
 
@@ -52,13 +53,16 @@ module Api =
                             this.fields |> TupleList.fold addDefault TupleList.empty
 
 
-    and ApiData = { refs:Ref seq; bookmarks:Map<string, string>; types:Map<string, string>; tags:string seq; forms: TupleList<string, Form>; oauthEndpoints:string * string  }
+    and ApiData = { refs:Ref seq; bookmarks:Map<string, string>; types:Map<string, string>; tags:string seq; forms: TupleList<string, Form>; experiments: Experiments; oauthEndpoints:string * string  }
                         static member fromJson (json:JsonValue) = {
                             refs = json?refs.AsArray() |> Array.map Ref.fromJson;
                             bookmarks = asStringMapFromProperties(json?bookmarks);
                             types = asStringMapFromProperties(json?types);
                             tags = json?tags.AsArray() |> Array.map asString;
                             forms = asTupleListFromProperties (Form.fromJson) (json?forms)
+                            experiments = match json.TryGetProperty("experiments") with
+                                          | Some(exp) -> Experiments.fromJson(exp)
+                                          | None -> Experiments.empty
                             oauthEndpoints = (json?oauth_initiate.AsString(), json?oauth_token.AsString())
                         }
 
