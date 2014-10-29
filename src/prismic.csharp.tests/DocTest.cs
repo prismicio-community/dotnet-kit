@@ -150,6 +150,23 @@ namespace prismic.csharp.tests
 		}
 
 		[Test ()]
+		public void ImagesTest()
+		{
+			Api.Api api = prismic.extensions.Api.Get("https://lesbonneschoses.prismic.io/api").Result;
+			var response = api.Forms["everything"]
+				.Ref(api.Master)
+				.Query (@"[[:d = at(document.id, ""UlfoxUnM0wkXYXbO"")]]")
+				.SubmitableAsTask().Submit().Result;
+			var doc = response.results[0];
+			// startgist:2ba6c72a80cf9d2af15e:prismic-images.cs
+			// Accessing image fields
+			var imageView = doc.GetImageView("product.image", "main").Value();
+			String url = imageView.url;
+			// endgist
+			Assert.AreEqual(url, "https://prismic-io.s3.amazonaws.com/lesbonneschoses/f606ad513fcc2a73b909817119b84d6fd0d61a6d.png");
+		}
+
+		[Test ()]
 		public void DateTimestampTest()
 		{
 			Api.Api api = prismic.extensions.Api.Get("https://lesbonneschoses.prismic.io/api").Result;
