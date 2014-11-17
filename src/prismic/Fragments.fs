@@ -23,7 +23,7 @@ module Fragments =
                 | Strong of (int * int)
                 | Hyperlink of (int * int * Link)
                 | Label of (int * int * string) // start, end, label
-    and Embed = {typ:string; provider:string; url:string; width:int option; height:int option; html:string option; oembedJson:JsonValue; label: string option}
+    and Embed = {typ:string; provider:string option; url:string; width:int option; height:int option; html:string option; oembedJson:JsonValue; label: string option}
     and GeoPoint = {latitude: decimal; longitude: decimal}
     and Text = Heading of (string * Span seq * int * string option) // (text, spans, level, label)
                 | Paragraph of (string * Span seq * string option) // (text, spans, label)

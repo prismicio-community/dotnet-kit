@@ -145,7 +145,6 @@ namespace prismic.csharp.tests
 			Assert.IsTrue (maybeText.Exists ());
 		}
 
-
 		[Test ()]
 		public void ShouldAccessImage()
 		{
@@ -168,3 +167,5 @@ namespace prismic.csharp.tests
 
 	}
 }
+
+

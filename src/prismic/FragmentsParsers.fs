@@ -85,7 +85,7 @@ module internal FragmentsParsers =
         let oembed = f?oembed in
         {
             typ = oembed.GetProperty("type").AsString();
-            provider = oembed?provider_name.AsString();
+            provider = asStringOption(oembed>?"provider_name");
             url = oembed?embed_url.AsString();
             width = asIntegerOption(oembed>?"width");
             height = asIntegerOption(oembed>?"height");
