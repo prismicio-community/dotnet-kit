@@ -39,7 +39,7 @@ module FragmentsHtml =
                     | Embed (e) ->
                                 e.html
                                     |> Option.fold (fun _ h -> String.Format("""<div data-oembed="{0}" data-oembed-type="{1}" data-oembed-provider="{2}">{3}</div>""",
-                                                                                    e.url, e.typ.ToLowerInvariant(), e.provider |> Option.map(fun p -> p.ToLowerInvariant()), h)
+                                                                                    e.url, e.typ.ToLowerInvariant(), defaultArg (e.provider |> Option.map(fun p -> p.ToLowerInvariant())) "", h)
                                                    ) String.Empty
                     | Image (i, m) -> imageViewAsHtml linkResolver i
                     | Group g ->    let getHtml field fragmentMap =
