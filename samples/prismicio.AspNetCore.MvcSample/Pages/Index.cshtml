@@ -1,0 +1,28 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - prismicio ASP.Net Core Sample</title>
+    <link rel="stylesheet" href="~/site.css" />
+</head>
+<body>
+    <main role="main">
+        <div class="text-center">
+            <h1 class="display-4">Prismic.io Razor Pages Sample</h1>
+            <p>Learn about building for the web with <a href="https://prismic.io">prismic.io</a> and <a href="https://docs.microsoft.com/aspnet/core"></a>ASP.NET Core</a>.</p>
+
+            <p>Prismic Master Ref: @ViewBag.MasterRef</p>
+        </div>
+    </main>
+</body>
+</html>
+
+
+
