@@ -45,3 +45,6 @@ src/nuget/packaging/
 
 node_modules/
 coverage.json
+/fdr-dotnet-kit.iml
+/.idea/
+/.vscode/
