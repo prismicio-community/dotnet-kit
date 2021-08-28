@@ -1,3 +1,37 @@
+#Autosave files
+*~
+
+# Test coverage
+**/lcov.info
+
+# Build/test output
+obj
+bin
+test-results
+
+# VS sometimes writes these for no apparent reason
+_UpgradeReport_Files
+UpgradeLog.*
+
+# Per-user data
+*.DS_Store
+*.sln.cache
+*.suo
+*.userprefs
+*.usertasks
+*.user
+
+# ReSharper
+*_Resharper.*
+*.Resharper
+
+# dotCover
+*.dotCover
+
+#MonoDevelop
+*.pidb
+*.userprefs
+
 # dlls
 [Oo]bj/
 [Bb]in
@@ -5,12 +39,12 @@
 [Rr]elease*/
 
 src/packages/
+src/Help
 src/nuget/packages/
 src/nuget/packaging/
 
-#MonoDevelop
-*.pidb
-*.userprefs
-
 node_modules/
-
+coverage.json
+/fdr-dotnet-kit.iml
+/.idea/
+/.vscode/
